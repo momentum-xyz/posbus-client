@@ -2,7 +2,6 @@ package pbc
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
@@ -167,7 +166,6 @@ func (c *Client) writePump() {
 }
 
 func (c *Client) processMessage(msg *posbus.Message) error {
-	fmt.Printf("fff0")
 	var err error
 	var data interface{}
 	switch msg.Type() {

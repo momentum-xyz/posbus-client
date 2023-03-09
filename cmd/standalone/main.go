@@ -13,13 +13,13 @@ import (
 	"time"
 )
 
-var URL = "ws://localhost:4000/posbus"
+var URL = "https://dev2.odyssey.ninja/posbus"
 
 func main() {
 	//ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	//defer stop()
 	ctx := context.Background()
-	resp, err := http.Post("http://localhost:4000/api/v4/auth/guest-token", "", nil)
+	resp, err := http.Post("https://dev2.odyssey.ninja/api/v4/auth/guest-token", "", nil)
 	if err != nil {
 		fmt.Printf("Error of getting guest token %+v\n", err)
 		return
@@ -41,7 +41,11 @@ func main() {
 	client.SetCallback(onMessage)
 	client.Connect(URL, *u.JWTToken, uuid.MustParse(u.ID))
 
-	client.Send(posbus.NewMessageFromData(posbus.TypeTeleportRequest, uuid.New()).Buf())
+	client.Send(
+		posbus.NewMessageFromData(
+			posbus.TypeTeleportRequest, uuid.MustParse("975cb9ca-4dfa-4d35-adc2-198ed1f12555"),
+		).Buf(),
+	)
 
 	time.Sleep(time.Second * 20000)
 
