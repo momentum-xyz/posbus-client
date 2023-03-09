@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/momentum-xyz/posbus-client/pbc"
+	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/api/dto"
 	"io"
@@ -13,13 +14,13 @@ import (
 	"time"
 )
 
-var URL = "https://dev2.odyssey.ninja/posbus"
+var URL = "http://localhost:4000/posbus"
 
 func main() {
 	//ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	//defer stop()
 	ctx := context.Background()
-	resp, err := http.Post("https://dev2.odyssey.ninja/api/v4/auth/guest-token", "", nil)
+	resp, err := http.Post("http://localhost:4000/api/v4/auth/guest-token", "", nil)
 	if err != nil {
 		fmt.Printf("Error of getting guest token %+v\n", err)
 		return
@@ -45,6 +46,11 @@ func main() {
 		posbus.NewMessageFromData(
 			posbus.TypeTeleportRequest, uuid.MustParse("975cb9ca-4dfa-4d35-adc2-198ed1f12555"),
 		).Buf(),
+	)
+	time.Sleep(time.Second)
+	t := cmath.NewUserTransform()
+	client.Send(
+		posbus.NewMessageFromBuffer(posbus.TypeSendTransform, t.Bytes()).Buf(),
 	)
 
 	time.Sleep(time.Second * 20000)

@@ -2,6 +2,7 @@ package pbc
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
@@ -28,13 +29,14 @@ const (
 )
 
 type Client struct {
-	conn     *websocket.Conn
-	log      *zap.SugaredLogger
-	ctx      context.Context
-	url      string
-	send     chan []byte
-	hs       posbus.HandShake
-	callback func(msgType posbus.MsgType, data interface{}) error
+	conn          *websocket.Conn
+	log           *zap.SugaredLogger
+	ctx           context.Context
+	url           string
+	send          chan []byte
+	hs            posbus.HandShake
+	currentTarget uuid.UUID
+	callback      func(msgType posbus.MsgType, data interface{}) error
 }
 
 func NewClient(ctx context.Context) *Client {
@@ -54,25 +56,37 @@ func (c *Client) Connect(url, token string, userId uuid.UUID) error {
 	c.hs.SessionId = uuid.New()
 	c.hs.HandshakeVersion = 1
 	c.hs.ProtocolVersion = 1
-	c.doConnect()
+	c.doConnect(false)
 	return nil
 }
 func (c *Client) Send(msg []byte) {
 	c.send <- msg
 }
 
-func (c *Client) doConnect() error {
+func (c *Client) doConnect(reconnect bool) error {
 	var err error
-	c.conn, _, err = websocket.Dial(c.ctx, c.url, nil)
-	if err != nil {
-		c.callback(posbus.TypeSignal, 6)
-		return err
+	for ok := true; ok; ok = err != nil {
+		c.conn, _, err = websocket.Dial(c.ctx, c.url, nil)
+		time.Sleep(time.Second)
 	}
+	//if err != nil {
+	//	c.callback(posbus.TypeSignal, 6)
+	//	return err
+	//}
 	c.startIOPumps()
-
+	fmt.Println("q1")
 	c.Send(posbus.NewMessageFromData(posbus.TypeHandShake, c.hs).Buf())
-
+	fmt.Println("q2")
 	c.callback(posbus.TypeSignal, 7)
+	fmt.Println("q3")
+	if reconnect {
+		c.Send(
+			posbus.NewMessageFromData(
+				posbus.TypeTeleportRequest, c.currentTarget,
+			).Buf(),
+		)
+	}
+	fmt.Println("q4")
 	return nil
 }
 
@@ -140,6 +154,7 @@ func (c *Client) readPump() {
 	c.conn.Close(websocket.StatusNormalClosure, "")
 	c.callback(posbus.TypeSignal, 8)
 	c.log.Infof("PBC: end of read pump")
+	go c.doConnect(true)
 }
 
 func (c *Client) writePump() {
@@ -185,6 +200,10 @@ func (c *Client) processMessage(msg *posbus.Message) error {
 	default:
 		//fmt.Println(string(msg.Buf()))
 		data, err = msg.Decode()
+		if msg.Type() == posbus.TypeSetWorld {
+			c.currentTarget = data.(*posbus.SetWorldData).ID
+		}
+
 	}
 
 	if err != nil {
