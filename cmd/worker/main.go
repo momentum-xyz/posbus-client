@@ -106,6 +106,8 @@ func Send(this js.Value, args []js.Value) interface{} {
 
 func onMessage(msgType posbus.MsgType, data interface{}) error {
 	r, _ := json.Marshal(data)
+	//here we need to send messages
 	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msgType), string(r))
+
 	return nil
 }
