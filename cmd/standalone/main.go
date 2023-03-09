@@ -52,7 +52,10 @@ func main() {
 }
 
 func onMessage(msgType posbus.MsgType, data interface{}) error {
-	r, _ := json.Marshal(data)
-	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msgType), string(r))
+	r, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("Incoming message: %+v %+v %+v\n", posbus.MessageNameById(msgType), len(r), string(r))
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
+	"github.com/momentum-xyz/ubercontroller/utils"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"nhooyr.io/websocket"
@@ -174,14 +175,15 @@ func (c *Client) processMessage(msg *posbus.Message) error {
 		if upb == nil {
 			return nil
 		}
-		data = upb.Decode()
+		data = utils.GetPTR(upb.Decode())
 	case posbus.TypeSendTransform:
 		d := cmath.NewUserTransform()
 		d.CopyFromBuffer(msg.Msg())
-		data = d
+		data = &d
 	case posbus.TypeGenericMessage:
 		data = msg.Msg()
 	default:
+		//fmt.Println(string(msg.Buf()))
 		data, err = msg.Decode()
 	}
 
