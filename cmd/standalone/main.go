@@ -9,6 +9,7 @@ import (
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/api/dto"
+	"github.com/momentum-xyz/ubercontroller/utils"
 	"io"
 	"net/http"
 	"time"
@@ -44,7 +45,8 @@ func main() {
 
 	client.Send(
 		posbus.NewMessageFromData(
-			posbus.TypeTeleportRequest, uuid.MustParse("975cb9ca-4dfa-4d35-adc2-198ed1f12555"),
+			posbus.TypeTeleportRequest,
+			posbus.TeleportRequest{Target: uuid.MustParse("975cb9ca-4dfa-4d35-adc2-198ed1f12555")},
 		).Buf(),
 	)
 	time.Sleep(time.Second)
@@ -58,10 +60,13 @@ func main() {
 }
 
 func onMessage(msgType posbus.MsgType, data interface{}) error {
-	r, err := json.Marshal(data)
+
+	r := make(map[string]interface{})
+	err := utils.MapDecode(data, &r)
+	//r, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err, posbus.MessageNameById(msgType))
 	}
-	fmt.Printf("Incoming message: %+v %+v %+v\n", posbus.MessageNameById(msgType), len(r), string(r))
+	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msgType), r)
 	return nil
 }

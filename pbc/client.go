@@ -2,7 +2,6 @@ package pbc
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
@@ -70,15 +69,12 @@ func (c *Client) doConnect(reconnect bool) error {
 		time.Sleep(time.Second)
 	}
 	//if err != nil {
-	//	c.callback(posbus.TypeSignal, 6)
+	//c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionFailed})
 	//	return err
 	//}
 	c.startIOPumps()
-	fmt.Println("q1")
 	c.Send(posbus.NewMessageFromData(posbus.TypeHandShake, c.hs).Buf())
-	fmt.Println("q2")
-	c.callback(posbus.TypeSignal, 7)
-	fmt.Println("q3")
+	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnected})
 	if reconnect {
 		c.Send(
 			posbus.NewMessageFromData(
@@ -86,7 +82,6 @@ func (c *Client) doConnect(reconnect bool) error {
 			).Buf(),
 		)
 	}
-	fmt.Println("q4")
 	return nil
 }
 
@@ -152,7 +147,7 @@ func (c *Client) readPump() {
 		}
 	}
 	c.conn.Close(websocket.StatusNormalClosure, "")
-	c.callback(posbus.TypeSignal, 8)
+	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionClosed})
 	c.log.Infof("PBC: end of read pump")
 	go c.doConnect(true)
 }

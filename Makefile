@@ -5,6 +5,7 @@ all: build
 
 build:
 	go build -trimpath -o ./bin/pbc ./cmd/standalone
+	#tinygo build -o ./bin/pbc ./cmd/standalone
 
 worker:
 	GOOS=js GOARCH=wasm go build -trimpath -o ./bin/worker.wasm ./cmd/worker

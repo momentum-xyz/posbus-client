@@ -3,7 +3,7 @@ module github.com/momentum-xyz/posbus-client
 go 1.19
 
 require (
-	github.com/momentum-xyz/ubercontroller v0.1.1-0.20230309143845-4d39adc06b7b
+	github.com/momentum-xyz/ubercontroller v0.1.1-0.20230310122405-f5574d16b068
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.24.0
 	nhooyr.io/websocket v1.8.7
