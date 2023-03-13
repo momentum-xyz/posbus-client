@@ -57,4 +57,4 @@ jobs:
         name: Publish NPM package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm publish --tag "${{ steps.package-tag.version }}"
+        run: npm publish --tag "${{ steps.package-tag.outputs.version }}"
