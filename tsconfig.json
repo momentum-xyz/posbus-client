@@ -1,0 +1,16 @@
+{
+  "extends": "@tsconfig/node-lts-strictest-esm/tsconfig.json",
+  "include": ["ts/**/*.ts"],
+  "compilerOptions": {
+    "rootDirs": ["ts", "build"],
+    "composite": true,
+    "declaration": true,
+    "declarationDir": "dist",
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "checkJs": false,
+    "isolatedModules": true,
+    "lib": ["DOM", "ESNext", "WebWorker"],
+    "outDir": "dist"
+  }
+}
