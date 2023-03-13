@@ -1,17 +1,38 @@
 #DOCKER_IMAGE="posbus-client"
 #DOCKER_TAG="develop"
+EXAMPLE_PORT:=0
 
 all: build
 
-build:
+build: dist/index.js dist/types/index.d.js
+
+dist/index.js: bin/build_js build/wasm_exec.js build/pbc.wasm
+	bin/build_js
+
+dist/types/index.d.js:
+	npm run build:types
+
+bin/pbc:
 	go build -trimpath -o ./bin/pbc ./cmd/standalone
 	#tinygo build -o ./bin/pbc ./cmd/standalone
 
-worker:
-	GOOS=js GOARCH=wasm go build -trimpath -o ./bin/worker.wasm ./cmd/worker
+bin/build_js:
+	go build -trimpath -o ./bin/build_js ./cmd/build_js
 
-run: build
+build/pbc.wasm:
+	GOOS=js GOARCH=wasm go build -trimpath -o ./build/pbc.wasm ./cmd/worker
+
+build/wasm_exec.js:
+	mkdir -p ./build
+	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" ./build/
+
+run: bin/pbc
 	./bin/pbc
+
+run-example: bin/build_js build/pbc.wasm build/wasm_exec.js
+	mkdir -p dist/
+	cp example/* dist/
+	bin/build_js -s -p $(EXAMPLE_PORT)
 
 pbupdate:
 	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop && go mod vendor
@@ -22,17 +43,7 @@ pbupdate:
 test:
 	go build -trimpath -o ./bin/test ./cmd/test && ./bin/test
 
+clean:
+	rm -rf bin/ build/ dist/
 
-
-#build-docs:
-#	swag init -g api.go -d universe/node,./,universe/streamchat -o build/docs/
-
-#docker-build: DOCKER_BUILDKIT=1
-#docker-build:
-#	docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-#
-## docker run ...
-#docker: docker-build
-#	docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG}
-#
-#.PHONY: build run test docker docker-build
+.PHONY: all build run test pbupdate download install-tools

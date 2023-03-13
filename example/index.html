@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Momentum posbus client - Example</title>
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body>
+    <div id="root">
+      <div>
+        <label
+          >Backend
+          <input id="backend" value="http://localhost:8080" />
+        </label>
+        <label
+          >World
+          <input id="world" value="ed8273d0-57f6-4a99-832d-57866b975ff9" />
+        </label>
+      </div>
+      <div>
+        <button id="connect">Connect</button>
+        <!-- TODO: <button id="disconnect">Disconnect</a> -->
+      </div>
+    </div>
+    <script type="importmap">
+      {
+        "imports": {
+          "@momentum-xyz/posbus-client": "./js/index.mjs"
+        }
+      }
+    </script>
+    <script type="module">
+      import { loadClientWorker } from "@momentum-xyz/posbus-client";
+      let client, port;
+      async function authenticate(backendUrl) {
+        return fetch(`${backendUrl}/api/v4/auth/guest-token`, {
+          method: "POST",
+        }).then((r) => r.json());
+      }
+      async function connect(backendUrl) {
+        let { token, id } = await authenticate(backendUrl);
+        if (!client) {
+          client = await loadClientWorker();
+        }
+        port = await client.connect(`${backendUrl}/posbus`, token, id);
+        port.onmessage = (msg) => {
+          console.debug(msg.data);
+        };
+      }
+      async function teleport(worldId) {
+        await client.teleport(worldId);
+        console.log("Entered world");
+      }
+
+      async function sendPosition() {
+        await port.postMessage([
+          "set_users_transforms",
+          {
+            location: [1, 2, 3],
+            rotation: [0.1, 0.2, 0.3],
+          },
+        ]);
+      }
+
+      // Below are the UI bits
+      const backendInput = document.getElementById("backend");
+      const worldInput = document.getElementById("world");
+      document.getElementById("connect").onclick = async (e) => {
+        try {
+          await connect(backendInput.value);
+          console.log("Connected");
+          await teleport(worldInput.value);
+          console.log("Teleported to ", worldInput.value);
+          await new Promise((r) => setTimeout(r, 2000));
+          await sendPosition();
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    </script>
+  </body>
+</html>
