@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/evanw/esbuild v0.17.11
 	github.com/google/uuid v1.3.0
-	github.com/momentum-xyz/ubercontroller v0.1.1-0.20230310122405-f5574d16b068
+	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230313121745-a841b484ca60
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.24.0
 	nhooyr.io/websocket v1.8.7
