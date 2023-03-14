@@ -9,7 +9,7 @@ const WORKER_FILE = "worker.mjs"; // TODO: can we import this (like .wasm)?
 export class Client {
   constructor(private readonly worker: Worker) {}
 
-  async connect(url: URL, token: string, userId: string): Promise<MessagePort> {
+  async connect(url: string, token: string, userId: string): Promise<MessagePort> {
     const { port1, port2 } = new MessageChannel();
     this.worker.postMessage({ type: PostMessageType.MSG_PORT }, [port2]);
     await workerCall(this.worker, {
@@ -31,9 +31,10 @@ export class Client {
 }
 
 export const loadClientWorker = async (
-  url = new URL(`./${WORKER_FILE}`, import.meta.url)
+  url = new URL(`./${WORKER_FILE}`, import.meta.url),
+  wasmUrl?: URL
 ): Promise<Client> => {
   const worker = new Worker(url, { type: "module", name: "PBC" });
-  await workerCall(worker, { type: PostMessageType.WORKER_LOAD });
+  await workerCall(worker, { type: PostMessageType.WORKER_LOAD, wasmUrl: wasmUrl?.toString() });
   return new Client(worker);
 };
