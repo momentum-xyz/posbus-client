@@ -73,18 +73,17 @@ make clean run-example
 
 The base is a Go project, with some added typescript bits.
 
-* _cmd_: Source of Go binaries
-* _docs_: Documentation
-* _example_: Examples of usages
-* _pbc_: Go package of the client library
-* _ts_: Typescript source if the javascript library
+- _cmd_: Source of Go binaries
+- _docs_: Documentation
+- _example_: Examples of usages
+- _pbc_: Go package of the client library
+- _ts_: Typescript source if the javascript library
 
 Generated directories:
 
-* _build_: Output of (intermediate) build files
-* _dist_: Output of files to distribute
-* _node_modules_: NPM depedencies
-
+- _build_: Output of (intermediate) build files
+- _dist_: Output of files to distribute
+- _node_modules_: NPM depedencies
 
 ### How it works
 

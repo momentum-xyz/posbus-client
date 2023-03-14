@@ -175,21 +175,6 @@ func msgGoToJs(data any) (map[string]any, error) {
 	return r, nil
 }
 
-func td(x any) {
-	logger.L().Debugf("td %T", x)
-	switch x := x.(type) {
-	case uint32:
-		logger.L().Debug("uint32", x)
-	case posbus.Signal:
-		logger.L().Debug("posbus.Signal", x)
-	case map[string]any:
-		logger.L().Debug("map[string]any", x)
-	default:
-		logger.L().Debug("unknown", x)
-
-	}
-}
-
 func onMessage(msgType posbus.MsgType, data interface{}) error {
 	// workaround: process in goroutine to avoid locking event thread
 	go func() {
