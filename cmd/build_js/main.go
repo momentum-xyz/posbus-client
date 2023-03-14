@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/gzuidhof/tygo/tygo"
 	"github.com/pkg/errors"
 )
 
@@ -47,6 +48,24 @@ var serveOptions = api.ServeOptions{
 	Servedir: "dist",
 }
 
+// TODO: go:embed this?
+// A number of types are outside posbus/types.go.
+// Avoids scanning whole project (or configuring hude exclude files liss) and adding bunch of unneeded types.
+var extraTypes = `
+export type byte = number; // TODO: single use, as bitmask
+export type Vec3 = [number, number, number];
+export interface ObjectTransform {
+  position: Vec3;
+  rotation: Vec3;
+  scale: Vec3;
+}
+export interface UserTransform {
+  position: Vec3;
+  rotation: Vec3;
+}
+export type SlotType = "" | "texture" | "string" | "number";
+`
+
 func main() {
 	var (
 		help  bool = false
@@ -64,6 +83,11 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	err := generateTypes(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if serve {
 		if err := runServer(ctx, port, buildOptions); err != nil {
@@ -104,4 +128,27 @@ func runServer(ctx context.Context, port int, buildOptions api.BuildOptions) err
 	fmt.Printf("Serving: http://%s:%v\n", sr.Host, sr.Port)
 	<-ctx.Done()
 	return nil
+}
+
+func generateTypes(ctx context.Context) error {
+	config := &tygo.Config{
+		Packages: []*tygo.PackageConfig{
+			&tygo.PackageConfig{
+				Path:         "github.com/momentum-xyz/ubercontroller/pkg/posbus",
+				OutputPath:   "build/posbus.d.ts",
+				IncludeFiles: []string{"types.go"},
+				Frontmatter:  extraTypes,
+				TypeMappings: map[string]string{
+					"uuid.UUID":             "string",
+					"dto.Asset3dType":       "string",
+					"cmath.ObjectTransform": "ObjectTransform",
+					"cmath.UserTransform":   "UserTransform",
+					"entry.UnitySlotType":   "SlotType",
+				},
+			},
+		},
+	}
+	gen := tygo.New(config)
+	err := gen.Generate()
+	return err
 }
