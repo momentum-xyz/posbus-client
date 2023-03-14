@@ -23,6 +23,7 @@ var buildOptions = api.BuildOptions{
 	OutExtension: map[string]string{
 		".js": ".mjs",
 	},
+	AssetNames: "[name]",
 	Loader: map[string]api.Loader{
 		".wasm": api.LoaderFile,
 	},
