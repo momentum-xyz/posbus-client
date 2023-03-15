@@ -10,7 +10,7 @@ import type * as posbus from "../build/posbus";
  */
 
 // TODO: auto generate this:
-export const enum MsgType {
+export enum MsgType {
   // Incoming and outgoing types:
   // None yet...
 
