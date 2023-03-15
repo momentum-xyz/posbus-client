@@ -1,4 +1,7 @@
+import type { PosbusPort } from "./types";
 import { PostMessageType, workerCall } from "./worker_messaging";
+
+
 
 const WORKER_FILE = "worker.mjs"; // TODO: can we import this (like .wasm)?
 /**
@@ -9,7 +12,7 @@ const WORKER_FILE = "worker.mjs"; // TODO: can we import this (like .wasm)?
 export class Client {
   constructor(private readonly worker: Worker) {}
 
-  async connect(url: string, token: string, userId: string): Promise<MessagePort> {
+  async connect(url: string, token: string, userId: string): Promise<PosbusPort> {
     const { port1, port2 } = new MessageChannel();
     this.worker.postMessage({ type: PostMessageType.MSG_PORT }, [port2]);
     await workerCall(this.worker, {

@@ -50,7 +50,7 @@ var serveOptions = api.ServeOptions{
 
 // TODO: go:embed this?
 // A number of types are outside posbus/types.go.
-// Avoids scanning whole project (or configuring hude exclude files liss) and adding bunch of unneeded types.
+// Avoids scanning whole project and using which list of irrelevant types that should not be used.
 var extraTypes = `
 export type byte = number; // TODO: single use, as bitmask
 export type Vec3 = [number, number, number];
@@ -64,6 +64,14 @@ export interface UserTransform {
   rotation: Vec3;
 }
 export type SlotType = "" | "texture" | "string" | "number";
+
+export interface SetUserTransform {
+    id: string;
+    transform: UserTransform
+}
+export interface SetUsersTransforms {
+    value: SetUserTransform[];
+}
 `
 
 func main() {
@@ -145,6 +153,7 @@ func generateTypes(ctx context.Context) error {
 					"cmath.UserTransform":   "UserTransform",
 					"entry.UnitySlotType":   "SlotType",
 				},
+				FallbackType: "any",
 			},
 		},
 	}
