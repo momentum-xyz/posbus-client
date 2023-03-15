@@ -4,12 +4,12 @@ EXAMPLE_PORT:=0
 
 all: build
 
-build: dist/index.js dist/types/index.d.js
+build: dist/index.js dist/ts/index.d.ts
 
 dist/index.js: bin/build_js build/wasm_exec.js build/pbc.wasm
 	bin/build_js
 
-dist/types/index.d.js:
+dist/ts/index.d.ts:
 	npm run build:types
 
 bin/pbc:
