@@ -1,7 +1,7 @@
 extends: ["standard-with-typescript", "prettier"]
 parserOptions:
   project: "./tsconfig.json"
-ignorePatterns: ["dist/*", "vendor/*", "wasm_exec.js"]
+ignorePatterns: ["build/*", "dist/*", "vendor/*", "wasm_exec.js"]
 rules:
   "no-return-await": "off"
   "@typescript-eslint/return-await": ["error", "in-try-catch"]
