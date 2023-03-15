@@ -10,6 +10,9 @@ Currently there is a client for Go and Javascript (in browser).
 
 **TODO**: this is only initial version, not fully functional and API not definitive yet.
 
+For now the packages are only hosted on Github npm package repository.
+To use this you need to [authenticate](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-to-github-packages).
+
 ```shell
 npm install @momentum-xyz/posbus-client
 ```
