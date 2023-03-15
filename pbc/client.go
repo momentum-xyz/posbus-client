@@ -2,6 +2,8 @@ package pbc
 
 import (
 	"context"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
@@ -10,7 +12,6 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"nhooyr.io/websocket"
-	"time"
 )
 
 const (
@@ -64,6 +65,7 @@ func (c *Client) Send(msg []byte) {
 
 func (c *Client) doConnect(reconnect bool) error {
 	var err error
+	c.log.Infof("PBC: connecting... ")
 	for ok := true; ok; ok = err != nil {
 		c.conn, _, err = websocket.Dial(c.ctx, c.url, nil)
 		time.Sleep(time.Second)
@@ -106,6 +108,7 @@ func (c *Client) startIOPumps() {
 }
 
 func (c *Client) Close() error {
+	c.log.Infof("PBC: disconnect")
 	return c.conn.Close(websocket.StatusNormalClosure, "")
 }
 
@@ -149,7 +152,9 @@ func (c *Client) readPump() {
 	c.conn.Close(websocket.StatusNormalClosure, "")
 	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionClosed})
 	c.log.Infof("PBC: end of read pump")
-	go c.doConnect(true)
+	if !errors.Is(c.ctx.Err(), context.Canceled) {
+		go c.doConnect(true)
+	}
 }
 
 func (c *Client) writePump() {
@@ -159,7 +164,7 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message := <-c.send:
-			c.log.Infof("Send message")
+			c.log.Debugln("Write pump message")
 			if message == nil {
 				return
 			}
@@ -172,6 +177,9 @@ func (c *Client) writePump() {
 			if c.conn.Ping(c.ctx) != nil {
 				return
 			}
+		case <-c.ctx.Done():
+			c.log.Infof("Write pump cancelled")
+			return
 		}
 	}
 }

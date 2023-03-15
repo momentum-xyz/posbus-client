@@ -3,28 +3,46 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/momentum-xyz/posbus-client/pbc"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/api/dto"
 	"github.com/momentum-xyz/ubercontroller/utils"
-	"io"
-	"net/http"
-	"time"
 )
 
 var URL = "http://localhost:4000/posbus"
 
 func main() {
-	//ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	//defer stop()
-	ctx := context.Background()
-	resp, err := http.Post("http://localhost:4000/api/v4/auth/guest-token", "", nil)
+	backendArg := flag.String("backend", "http://localhost:4000", "The URL to the controller backend")
+	worldArg := flag.String("world", "975cb9ca-4dfa-4d35-adc2-198ed1f12555", "UUID of a world")
+	flag.Parse()
+	backend, err := url.Parse(*backendArg)
 	if err != nil {
-		fmt.Printf("Error of getting guest token %+v\n", err)
-		return
+		log.Fatalf("Invalid backend URL %s", err)
+	}
+	world, err := uuid.Parse(*worldArg)
+	if err != nil {
+		log.Fatalf("Invalid world %s", err)
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	resp, err := http.Post(backend.JoinPath("/api/v4/auth/guest-token").String(), "", nil)
+	if err != nil {
+		log.Fatalf("Error of getting guest token %+v\n", err)
 	}
 	defer resp.Body.Close()
 
@@ -32,9 +50,7 @@ func main() {
 	var u dto.User
 	err = json.Unmarshal(body, &u)
 	if err != nil {
-		fmt.Printf("Error %+v\n", err)
-		return
-
+		log.Fatalf("Error %+v\n", err)
 	}
 
 	//fmt.Printf("%+v\n", u)
@@ -46,7 +62,7 @@ func main() {
 	client.Send(
 		posbus.NewMessageFromData(
 			posbus.TypeTeleportRequest,
-			posbus.TeleportRequest{Target: uuid.MustParse("975cb9ca-4dfa-4d35-adc2-198ed1f12555")},
+			posbus.TeleportRequest{Target: world},
 		).Buf(),
 	)
 	time.Sleep(time.Second)
@@ -55,8 +71,9 @@ func main() {
 		posbus.NewMessageFromBuffer(posbus.TypeSendTransform, t.Bytes()).Buf(),
 	)
 
-	time.Sleep(time.Second * 20000)
-
+	<-ctx.Done()
+	fmt.Println("Stopped.")
+	os.Exit(0)
 }
 
 func onMessage(msgType posbus.MsgType, data interface{}) error {
