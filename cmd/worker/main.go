@@ -8,12 +8,12 @@ import (
 	"reflect"
 	"syscall/js"
 
-	"github.com/google/uuid"
 	"github.com/momentum-xyz/posbus-client/pbc"
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/utils"
+	"github.com/momentum-xyz/ubercontroller/utils/umid"
 	"github.com/pkg/errors"
 )
 
@@ -71,7 +71,7 @@ func Connect(this js.Value, args []js.Value) any {
 	}
 	url := args[0].String()
 	token := args[1].String()
-	userId, err := uuid.Parse(args[2].String())
+	userId, err := umid.Parse(args[2].String())
 	if err != nil {
 		logger.L().Debugf("invalid userId %s", args[2].String())
 		return promiseReject(errors.Wrap(err, "userId"))
@@ -90,7 +90,7 @@ func Teleport(this js.Value, args []js.Value) any {
 		logger.L().Debugf("%+v\n", "PB Teleport: too few arguments")
 		return nil
 	}
-	world, err := uuid.Parse(args[0].String())
+	world, err := umid.Parse(args[0].String())
 	if err != nil {
 		logger.L().Error("invalid world ID %s", err)
 		return nil

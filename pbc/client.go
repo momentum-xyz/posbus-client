@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/utils"
+	"github.com/momentum-xyz/ubercontroller/utils/umid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"nhooyr.io/websocket"
@@ -34,7 +34,7 @@ type Client struct {
 	url           string
 	send          chan []byte
 	hs            posbus.HandShake
-	currentTarget uuid.UUID
+	currentTarget umid.UMID
 	callback      func(msgType posbus.MsgType, data interface{}) error
 }
 
@@ -46,11 +46,11 @@ func NewClient() *Client {
 	return c
 }
 
-func (c *Client) Connect(ctx context.Context, url, token string, userId uuid.UUID) error {
+func (c *Client) Connect(ctx context.Context, url, token string, userId umid.UMID) error {
 	c.url = url
 	c.hs.Token = token
 	c.hs.UserId = userId
-	c.hs.SessionId = uuid.New()
+	c.hs.SessionId = umid.New()
 	c.hs.HandshakeVersion = 1
 	c.hs.ProtocolVersion = 1
 	c.doConnect(ctx, false)

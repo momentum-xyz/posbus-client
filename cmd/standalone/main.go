@@ -14,12 +14,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/momentum-xyz/posbus-client/pbc"
 	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/api/dto"
 	"github.com/momentum-xyz/ubercontroller/utils"
+	"github.com/momentum-xyz/ubercontroller/utils/umid"
 )
 
 var URL = "http://localhost:4000/posbus"
@@ -32,7 +32,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Invalid backend URL %s", err)
 	}
-	world, err := uuid.Parse(*worldArg)
+	world, err := umid.Parse(*worldArg)
 	if err != nil {
 		log.Fatalf("Invalid world %s", err)
 	}
@@ -59,7 +59,7 @@ func main() {
 	defer cancelConnection()
 	client := pbc.NewClient()
 	client.SetCallback(onMessage)
-	client.Connect(connectionCtx, URL, *u.JWTToken, uuid.MustParse(u.ID))
+	client.Connect(connectionCtx, URL, *u.JWTToken, umid.MustParse(u.ID))
 
 	client.Send(
 		posbus.NewMessageFromData(
