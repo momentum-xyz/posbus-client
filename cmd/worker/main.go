@@ -17,16 +17,20 @@ import (
 	"github.com/pkg/errors"
 )
 
-var client *pbc.Client
-var done chan bool
-var msgPort js.Value
-var jsPromise js.Value // javascript Promise constructor
+var (
+	client           *pbc.Client
+	workerCtx        context.Context
+	connectionCtx    context.Context
+	connectionCancel func()
+	msgPort          js.Value
+	jsPromise        js.Value // javascript Promise constructor
+)
 
 func main() {
-	ctx := context.Background()
-	client = pbc.NewClient(ctx)
+	logger.L().Debug("Worker start")
+	workerCtx = context.Background()
+	client = pbc.NewClient()
 	client.SetCallback(onMessage)
-	done = make(chan bool)
 	jsPromise = js.Global().Get("Promise")
 	// Export a global variable to javascript
 	js.Global().Set("PBC", make(map[string]interface{}))
@@ -38,8 +42,8 @@ func main() {
 	namespace.Set("connect", js.FuncOf(Connect))
 	namespace.Set("disconnect", js.FuncOf(Disconnect))
 	namespace.Set("teleport", js.FuncOf(Teleport))
-	namespace.Set("close", js.FuncOf(Close))
-	<-done
+	<-workerCtx.Done()
+	logger.L().Debug("Worker done")
 }
 
 func SetURL(this js.Value, args []js.Value) interface{} {
@@ -74,7 +78,8 @@ func Connect(this js.Value, args []js.Value) any {
 	}
 	handler := promiseExecutor(
 		func() error {
-			return client.Connect(url, token, userId)
+			connectionCtx, connectionCancel = context.WithCancel(workerCtx)
+			return client.Connect(connectionCtx, url, token, userId)
 		},
 	)
 	return jsPromise.New(handler)
@@ -100,14 +105,12 @@ func Teleport(this js.Value, args []js.Value) any {
 }
 
 func Disconnect(this js.Value, args []js.Value) interface{} {
-	client.Close()
-	logger.L().Debug("Disconnected")
-	return nil
-}
-
-func Close(this js.Value, args []js.Value) interface{} {
-	client.Close()
-	done <- true
+	// Closing connection triggers calls on javascript (websocket),
+	// so inside goroutine to avoid deadlock.
+	go func() {
+		logger.L().Debug("Disconnecting...")
+		connectionCancel()
+	}()
 	return nil
 }
 

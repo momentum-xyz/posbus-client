@@ -19,7 +19,7 @@
       </div>
       <div>
         <button id="connect">Connect</button>
-        <!-- TODO: <button id="disconnect">Disconnect</a> -->
+        <button id="disconnect">Disconnect</button>
       </div>
     </div>
     <script type="importmap">
@@ -62,6 +62,10 @@
         ]);
       }
 
+      async function disconnect() {
+        await client.disconnect();
+      }
+
       // Below are the UI bits
       const backendInput = document.getElementById("backend");
       const worldInput = document.getElementById("world");
@@ -76,6 +80,10 @@
         } catch (error) {
           console.error(error);
         }
+      };
+      document.getElementById("disconnect").onclick = async (e) => {
+        await disconnect();
+        console.log("Disconnected");
       };
     </script>
   </body>

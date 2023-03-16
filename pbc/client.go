@@ -31,7 +31,6 @@ const (
 type Client struct {
 	conn          *websocket.Conn
 	log           *zap.SugaredLogger
-	ctx           context.Context
 	url           string
 	send          chan []byte
 	hs            posbus.HandShake
@@ -39,42 +38,40 @@ type Client struct {
 	callback      func(msgType posbus.MsgType, data interface{}) error
 }
 
-func NewClient(ctx context.Context) *Client {
+func NewClient() *Client {
 	c := &Client{}
-	c.ctx = ctx
-
 	c.log = logger.L()
 	c.send = make(chan []byte)
 	c.callback = c.defaultCallback
 	return c
 }
 
-func (c *Client) Connect(url, token string, userId uuid.UUID) error {
+func (c *Client) Connect(ctx context.Context, url, token string, userId uuid.UUID) error {
 	c.url = url
 	c.hs.Token = token
 	c.hs.UserId = userId
 	c.hs.SessionId = uuid.New()
 	c.hs.HandshakeVersion = 1
 	c.hs.ProtocolVersion = 1
-	c.doConnect(false)
+	c.doConnect(ctx, false)
 	return nil
 }
 func (c *Client) Send(msg []byte) {
 	c.send <- msg
 }
 
-func (c *Client) doConnect(reconnect bool) error {
+func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	var err error
-	c.log.Infof("PBC: connecting... ")
+	c.log.Infof("PBC: connecting (re:%s)... ", reconnect)
 	for ok := true; ok; ok = err != nil {
-		c.conn, _, err = websocket.Dial(c.ctx, c.url, nil)
+		c.conn, _, err = websocket.Dial(ctx, c.url, nil)
 		time.Sleep(time.Second)
 	}
 	//if err != nil {
 	//c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionFailed})
 	//	return err
 	//}
-	c.startIOPumps()
+	c.startIOPumps(ctx)
 	c.Send(posbus.NewMessageFromData(posbus.TypeHandShake, c.hs).Buf())
 	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnected})
 	if reconnect {
@@ -102,9 +99,9 @@ func (c *Client) SetCallback(f func(msgType posbus.MsgType, msg interface{}) err
 	return nil
 }
 
-func (c *Client) startIOPumps() {
-	go c.readPump()
-	go c.writePump()
+func (c *Client) startIOPumps(ctx context.Context) {
+	go c.readPump(ctx)
+	go c.writePump(ctx)
 }
 
 func (c *Client) Close() error {
@@ -112,27 +109,27 @@ func (c *Client) Close() error {
 	return c.conn.Close(websocket.StatusNormalClosure, "")
 }
 
-func (c *Client) readPump() {
+func (c *Client) readPump(ctx context.Context) {
 	c.log.Infof("PBC: start of read pump")
 
 	c.conn.SetReadLimit(inMessageSizeLimit)
 	//c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	//c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		messageType, message, err := c.conn.Read(c.ctx)
+		messageType, message, err := c.conn.Read(ctx)
 		if err != nil {
-			closedByClient := false
 			if ce, ok := err.(*websocket.CloseError); ok {
 				switch ce.Code {
 				case websocket.StatusNormalClosure,
 					websocket.StatusGoingAway,
 					websocket.StatusNoStatusRcvd:
-					closedByClient = true
+					c.log.Info(
+						errors.WithMessagef(err, "PBC: read pump: websocket closed by server"),
+					)
 				}
-			}
-			if closedByClient {
+			} else if errors.Is(err, context.Canceled) {
 				c.log.Info(
-					errors.WithMessagef(err, "PBC: read pump: websocket closed by server"),
+					errors.WithMessagef(err, "PBC: read pump: cancelled by client"),
 				)
 			} else {
 				c.log.Debug(
@@ -152,34 +149,35 @@ func (c *Client) readPump() {
 	c.conn.Close(websocket.StatusNormalClosure, "")
 	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionClosed})
 	c.log.Infof("PBC: end of read pump")
-	if !errors.Is(c.ctx.Err(), context.Canceled) {
-		go c.doConnect(true)
+	if ctx.Err() == nil {
+		// Only try reconnecting if it was not cancelled by us
+		go c.doConnect(ctx, true)
 	}
 }
 
-func (c *Client) writePump() {
+func (c *Client) writePump(ctx context.Context) {
 	c.log.Infof("PBC: start of write pump")
 
 	ticker := time.NewTicker(pingPeriod)
 	for {
 		select {
+		case <-ctx.Done():
+			c.log.Infof("Write pump cancelled")
+			return
 		case message := <-c.send:
 			c.log.Debugln("Write pump message")
 			if message == nil {
 				return
 			}
 
-			if c.conn.Write(c.ctx, websocket.MessageBinary, message) != nil {
+			if c.conn.Write(ctx, websocket.MessageBinary, message) != nil {
 				return
 			}
 
 		case <-ticker.C:
-			if c.conn.Ping(c.ctx) != nil {
+			if c.conn.Ping(ctx) != nil {
 				return
 			}
-		case <-c.ctx.Done():
-			c.log.Infof("Write pump cancelled")
-			return
 		}
 	}
 }

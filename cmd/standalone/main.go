@@ -55,9 +55,11 @@ func main() {
 
 	//fmt.Printf("%+v\n", u)
 
-	client := pbc.NewClient(ctx)
+	connectionCtx, cancelConnection := context.WithCancel(ctx)
+	defer cancelConnection()
+	client := pbc.NewClient()
 	client.SetCallback(onMessage)
-	client.Connect(URL, *u.JWTToken, uuid.MustParse(u.ID))
+	client.Connect(connectionCtx, URL, *u.JWTToken, uuid.MustParse(u.ID))
 
 	client.Send(
 		posbus.NewMessageFromData(
@@ -70,6 +72,14 @@ func main() {
 	client.Send(
 		posbus.NewMessageFromBuffer(posbus.TypeSendTransform, t.Bytes()).Buf(),
 	)
+
+	/* example reconnect:
+	time.Sleep(time.Second * 3)
+	cancelConnection()
+
+	time.Sleep(time.Second * 3)
+	client.Connect(ctx, URL, *u.JWTToken, uuid.MustParse(u.ID))
+	*/
 
 	<-ctx.Done()
 	fmt.Println("Stopped.")
