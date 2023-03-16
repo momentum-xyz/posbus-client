@@ -1,6 +1,6 @@
 module github.com/momentum-xyz/posbus-client
 
-go 1.19
+go 1.20
 
 require (
 	github.com/evanw/esbuild v0.17.11
