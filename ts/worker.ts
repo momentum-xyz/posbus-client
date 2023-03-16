@@ -16,15 +16,17 @@ let msgPort: MessagePort | null = null;
 onmessage = async (e: MessageEvent) => {
   switch (e.data.type) {
     case PostMessageType.WORKER_LOAD: {
-      const {wasmUrl} = e.data;
+      const { wasmUrl } = e.data;
       let customWasmUrl;
       if (wasmUrl != null) customWasmUrl = new URL(wasmUrl);
       const { go, instance } = await loadWasm(customWasmUrl);
-      go.run(instance).then(() => {
-        console.info("go stopped");
-      }).catch((err) => {
-        console.error("go run", err);
-      });
+      go.run(instance)
+        .then(() => {
+          console.info("go stopped");
+        })
+        .catch((err) => {
+          console.error("go run", err);
+        });
       e.ports[0]?.postMessage(true);
       break;
     }
