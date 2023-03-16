@@ -20,7 +20,11 @@ onmessage = async (e: MessageEvent) => {
       let customWasmUrl;
       if (wasmUrl != null) customWasmUrl = new URL(wasmUrl);
       const { go, instance } = await loadWasm(customWasmUrl);
-      void go.run(instance);
+      go.run(instance).then(() => {
+        console.info("go stopped");
+      }).catch((err) => {
+        console.error("go run", err);
+      });
       e.ports[0]?.postMessage(true);
       break;
     }
