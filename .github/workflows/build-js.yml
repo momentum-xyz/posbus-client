@@ -36,16 +36,16 @@ jobs:
           fi
           echo "NPM_TAG=${NPM_TAG}" >> $GITHUB_ENV
           echo "npm_tag=${NPM_TAG}" >> $GITHUB_OUTPUT
-      - uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
-        with:
-          go-version-file: "./go.mod"
-          cache: false # no use on self-hosted runner
       - id: go-fixup
         # Workaround for setup-go on self-hosted runner, without a $HOME
         name: Go fixup
         run: |
           echo "GOMODCACHE=/opt/go-cache/mod" >> $GITHUB_ENV
           echo "GOCACHE=/opt/go-cache/build" >> $GITHUB_ENV
+      - uses: actions/setup-go@6edd4406fa81c3da01a34fa6f6343087c207a568 # v3.5.0
+        with:
+          go-version-file: "./go.mod"
+          cache: false # no use on self-hosted runner
       - run: go version
       - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
         with:
