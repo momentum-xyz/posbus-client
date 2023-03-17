@@ -151,7 +151,7 @@ func generateTypes(ctx context.Context) error {
 				IncludeFiles: []string{"types.go"},
 				Frontmatter:  extraTypes,
 				TypeMappings: map[string]string{
-					"uuid.UUID":             "string",
+					"umid.UMID":             "string",
 					"dto.Asset3dType":       "string",
 					"cmath.ObjectTransform": "ObjectTransform",
 					"cmath.UserTransform":   "UserTransform",
