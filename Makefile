@@ -11,7 +11,7 @@ build/posbus.d.ts dist/index.js: bin/build_js build/wasm_exec.js build/pbc.wasm
 
 dist/ts/index.d.ts: build/posbus.d.ts
 	npm run build:types
-	cp --no-preserve=mode ./build/posbus.d.ts ./dist/ts
+	cp ./build/posbus.d.ts ./dist/ts
 
 bin/pbc:
 	go build -trimpath -o ./bin/pbc ./cmd/standalone
