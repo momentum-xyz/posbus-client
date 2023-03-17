@@ -17,6 +17,7 @@ import (
 )
 
 var buildOptions = api.BuildOptions{
+	LogLevel:    api.LogLevelInfo,
 	EntryPoints: []string{"ts/index.ts", "ts/worker.ts"},
 	Bundle:      true,
 	Outdir:      "dist",
@@ -100,6 +101,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Generated types")
 
 	if serve {
 		if err := runServer(ctx, port, buildOptions); err != nil {
@@ -122,6 +124,9 @@ func build(ctx context.Context, buildOptions api.BuildOptions) (*api.BuildResult
 		return nil, errors.Wrap(err, "build context")
 	}
 	result := buildCtx.Rebuild()
+	if len(result.Errors) > 0 {
+		log.Fatal("Build failed.")
+	}
 	return &result, nil
 }
 
