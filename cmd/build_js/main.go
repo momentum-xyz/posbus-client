@@ -60,7 +60,7 @@ export interface Vec3 {
   z: number;
 }
 export interface ObjectTransform {
-  position: Vec3;
+  location: Vec3;
   rotation: Vec3;
   scale: Vec3;
 }
