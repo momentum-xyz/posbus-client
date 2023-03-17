@@ -1,4 +1,4 @@
-import type * as posbus from "../build/posbus";
+import type * as posbus from "./posbus";
 
 /**
  * The actual Postbus messages are send through postMessage/onmessage, encapsulated inside a tuple to pass along its type.
@@ -29,9 +29,9 @@ export enum MsgType {
 export type SignalType = [MsgType.SIGNAL, posbus.Signal]
 export type SetWorldType = [MsgType.SET_WORLD, posbus.SetWorldData]
 export type AddObjectsType = [MsgType.ADD_OBJECTS, posbus.AddObjects]
-export type SetUsersTransforms = [MsgType.SET_USER_TRANSFORM, posbus.SetUsersTransforms]
+export type SetUsersTransformsType = [MsgType.SET_USER_TRANSFORM, posbus.SetUsersTransforms]
 
-export type IncomingMessage = SignalType | SetWorldType | AddObjectsType | SetUsersTransforms;
+export type IncomingMessage = SignalType | SetWorldType | AddObjectsType | SetUsersTransformsType;
 
 // Outgoing!
 export type PositionTransformType = [MsgType.SEND_TRANSFORM, posbus.UserTransform]
@@ -48,3 +48,5 @@ export interface PosbusPort extends MessagePort {
   onmessage: ((this: MessagePort, ev: PosbusEvent) => any) | null;
   postMessage: (message: PostbusMessage) => void;
 }
+
+export * from './posbus';
