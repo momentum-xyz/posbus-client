@@ -53,14 +53,18 @@ var serveOptions = api.ServeOptions{
 // Avoids scanning whole project and using which list of irrelevant types that should not be used.
 var extraTypes = `
 export type byte = number; // TODO: single use, as bitmask
-export type Vec3 = [number, number, number];
+export interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
+}
 export interface ObjectTransform {
   position: Vec3;
   rotation: Vec3;
   scale: Vec3;
 }
 export interface UserTransform {
-  position: Vec3;
+  location: Vec3;
   rotation: Vec3;
 }
 export type SlotType = "" | "texture" | "string" | "number";
