@@ -1,7 +1,7 @@
 // Example using the client in a typescript project
 
 import { loadClientWorker, MsgType } from "@momentum-xyz/posbus-client";
-import type { Vec3 } from "@momentum-xyz/posbus-client";
+import type { posbus } from "@momentum-xyz/posbus-client";
 
 async function main(): Promise<void> {
   const client = await loadClientWorker();
@@ -24,7 +24,7 @@ async function main(): Promise<void> {
             id: userId,
             transform: { location, rotation },
           } = uTransform;
-          const fmtVec3 = ({ x, y, z }: Vec3): string => `${x},${y},${z}`;
+          const fmtVec3 = ({ x, y, z }: posbus.Vec3): string => `${x},${y},${z}`;
           console.log(
             `User ${userId} ⊹${fmtVec3(location)} ∡${fmtVec3(rotation)}`
           );

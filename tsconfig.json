@@ -11,6 +11,7 @@
     "checkJs": false,
     "isolatedModules": true,
     "lib": ["DOM", "ESNext", "WebWorker"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "ignoreDeprecations": "5.0"
   }
 }

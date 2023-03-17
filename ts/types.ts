@@ -1,4 +1,5 @@
 import type * as posbus from "./posbus";
+import type { MsgType } from "./constants";
 
 /**
  * The actual Postbus messages are send through postMessage/onmessage, encapsulated inside a tuple to pass along its type.
@@ -9,21 +10,6 @@ import type * as posbus from "./posbus";
  * This also avoids conflict, if the message has a field names type itself (since we have generic messages).
  */
 
-// TODO: auto generate this:
-export enum MsgType {
-  // Incoming and outgoing types:
-  // None yet...
-
-  // Incoming types:
-  SIGNAL = "signal",
-  SET_WORLD = "set_world",
-  ADD_OBJECTS = "add_objects",
-  SET_USER_TRANSFORM = "set_users_transforms",
-
-  // Outgoing types:
-  SEND_TRANSFORM = "send_transform",
-  USER_ACTION = "user_action",
-}
 
 // Incoming!
 export type SignalType = [MsgType.SIGNAL, posbus.Signal]
@@ -49,4 +35,4 @@ export interface PosbusPort extends MessagePort {
   postMessage: (message: PostbusMessage) => void;
 }
 
-export * from './posbus';
+export type * as posbus from "./posbus";
