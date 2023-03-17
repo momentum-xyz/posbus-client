@@ -58,6 +58,8 @@ github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lN
 github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9Gz0M=
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230316142711-e5f3a6a8a6b5 h1:+LhidX72z4aSv3OlmWVYYHe0VuofuvyeT+kwyb+60mQ=
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230316142711-e5f3a6a8a6b5/go.mod h1:DCUxTp/yeMN8apSqXwZkDctpaLblagQHE+cSbcESGIQ=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230317082026-e54d63b7c5ba h1:RA9cDQNkyknyCPynqa/kyWi0XGlx8MrljydElY3VTvg=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230317082026-e54d63b7c5ba/go.mod h1:DCUxTp/yeMN8apSqXwZkDctpaLblagQHE+cSbcESGIQ=
 github.com/pelletier/go-toml/v2 v2.0.7 h1:muncTPStnKRos5dpVKULv2FVd4bMOhNePj9CjgDb8Us=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
