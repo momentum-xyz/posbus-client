@@ -1,8 +1,9 @@
 // Example using the client in a typescript project
 
-import { Client, loadClientWorker, MsgType, SetWorldType } from "../ts"; // "@momentum-xyz/posbus-client";
+import { loadClientWorker, MsgType } from "@momentum-xyz/posbus-client";
+import type { Vec3 } from "@momentum-xyz/posbus-client";
 
-async function main() {
+async function main(): Promise<void> {
   const client = await loadClientWorker();
   const backendUrl = "http://localhost:8080";
   const token = "foo.bar.baz";
@@ -17,11 +18,25 @@ async function main() {
         console.log("Entered world", worldData.name);
         break;
       }
-
+      case MsgType.SET_USER_TRANSFORM: {
+        for (const uTransform of data.value) {
+          const {
+            id: userId,
+            transform: { location, rotation },
+          } = uTransform;
+          const fmtVec3 = ({ x, y, z }: Vec3): string => `${x},${y},${z}`;
+          console.log(
+            `User ${userId} ⊹${fmtVec3(location)} ∡${fmtVec3(rotation)}`
+          );
+        }
+        break;
+      }
       default:
     }
   };
   await client.teleport(worldId);
-  await new Promise(f => setTimeout(f, 2345));
+  await new Promise((resolve) => setTimeout(resolve, 2345));
   port.postMessage([MsgType.USER_ACTION, { foo: "bar" }]);
 }
+
+export default main;

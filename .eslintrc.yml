@@ -1,6 +1,6 @@
 extends: ["standard-with-typescript", "prettier"]
 parserOptions:
-  project: "./tsconfig.json"
+  project: ["./tsconfig.json", "./example/tsconfig.json"]
 ignorePatterns: ["build/*", "dist/*", "vendor/*", "wasm_exec.js"]
 rules:
   "no-return-await": "off"
