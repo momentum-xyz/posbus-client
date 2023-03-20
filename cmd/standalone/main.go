@@ -62,16 +62,13 @@ func main() {
 	client.Connect(connectionCtx, URL, *u.JWTToken, umid.MustParse(u.ID))
 
 	client.Send(
-		posbus.NewMessageFromData(
-			posbus.TypeTeleportRequest,
-			posbus.TeleportRequest{Target: world},
-		).Buf(),
+		posbus.BinMessage(
+			&posbus.TeleportRequest{Target: world},
+		),
 	)
 	time.Sleep(time.Second)
-	t := cmath.NewUserTransform()
-	client.Send(
-		posbus.NewMessageFromBuffer(posbus.TypeSendTransform, t.Bytes()).Buf(),
-	)
+	t := &cmath.UserTransform{}
+	client.Send(posbus.BinMessage((*posbus.MyTransform)(t)))
 
 	/* example reconnect:
 	time.Sleep(time.Second * 3)

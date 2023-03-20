@@ -5,9 +5,7 @@ import (
 	"time"
 
 	"github.com/momentum-xyz/ubercontroller/logger"
-	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
-	"github.com/momentum-xyz/ubercontroller/utils"
 	"github.com/momentum-xyz/ubercontroller/utils/umid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -62,7 +60,7 @@ func (c *Client) Send(msg []byte) {
 
 func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	var err error
-	c.log.Infof("PBC: connecting (re:%s)... ", reconnect)
+	c.log.Infof("PBC: connecting (re:%v)... ", reconnect)
 	for ok := true; ok; ok = err != nil {
 		c.conn, _, err = websocket.Dial(ctx, c.url, nil)
 		time.Sleep(time.Second)
@@ -72,14 +70,10 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	//	return err
 	//}
 	c.startIOPumps(ctx)
-	c.Send(posbus.NewMessageFromData(posbus.TypeHandShake, c.hs).Buf())
+	c.Send(posbus.BinMessage(&c.hs))
 	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnected})
 	if reconnect {
-		c.Send(
-			posbus.NewMessageFromData(
-				posbus.TypeTeleportRequest, c.currentTarget,
-			).Buf(),
-		)
+		c.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: c.currentTarget}))
 	}
 	return nil
 }
@@ -141,8 +135,8 @@ func (c *Client) readPump(ctx context.Context) {
 		if messageType != websocket.MessageBinary {
 			c.log.Errorf("PBC: read pump: wrong incoming message type: %d", messageType)
 		} else {
-			if err := c.processMessage(posbus.BytesToMessage(message)); err != nil {
-				c.log.Warn(errors.WithMessagef(err, "PBC: read pump: failed to handle message"))
+			if err := c.processMessage(message); err != nil {
+				c.log.Warn(errors.WithMessagef(err, "PBC: read pump: failed to handle message %+v", message))
 			}
 		}
 	}
@@ -182,27 +176,29 @@ func (c *Client) writePump(ctx context.Context) {
 	}
 }
 
-func (c *Client) processMessage(msg *posbus.Message) error {
-	var err error
+func (c *Client) processMessage(buf []byte) error {
+	msg, err := posbus.Decode(buf)
+	if err != nil {
+		return errors.WithMessagef(err, "PBC: read pump: failed to decode message")
+	}
+
 	var data interface{}
 	switch msg.Type() {
-	case posbus.TypeSetUsersTransforms:
-		upb := posbus.BytesToUserTransformBuffer(msg.Msg())
-		if upb == nil {
-			return nil
-		}
-		data = utils.GetPTR(upb.Decode())
-	case posbus.TypeSendTransform:
-		d := cmath.NewUserTransform()
-		d.CopyFromBuffer(msg.Msg())
-		data = &d
-	case posbus.TypeGenericMessage:
-		data = msg.Msg()
+	//case posbus.TypeUsersTransformList:
+	//	upb := posbus.BytesToUserTransformBuffer(msg.Msg())
+	//	if upb == nil {
+	//		return nil
+	//	}
+	//	data = utils.GetPTR(upb.Decode())
+	//case posbus.TypeMyTransform:
+	//	data=(*cmath.UserTransform)(msg.(*posbus.MyTransform)).Copy()
+	//case posbus.TypeGenericMessage:
+	//	data = msg.(*posbus.GenericMessage).Data
 	default:
 		//fmt.Println(string(msg.Buf()))
-		data, err = msg.Decode()
+		data = msg
 		if msg.Type() == posbus.TypeSetWorld {
-			c.currentTarget = data.(*posbus.SetWorldData).ID
+			c.currentTarget = data.(*posbus.SetWorld).ID
 		}
 
 	}

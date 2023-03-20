@@ -13,7 +13,7 @@ dist/ts/index.d.ts: build/posbus.d.ts
 	npm run build:types
 	cp ./build/posbus.d.ts ./dist/ts
 
-bin/pbc:
+bin_pbc:
 	go build -trimpath -o ./bin/pbc ./cmd/standalone
 	#tinygo build -o ./bin/pbc ./cmd/standalone
 
@@ -27,7 +27,7 @@ build/wasm_exec.js:
 	mkdir -p ./build
 	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" ./build/
 
-run: bin/pbc
+run: bin_pbc
 	./bin/pbc
 
 run-example: bin/build_js build/pbc.wasm build/wasm_exec.js
@@ -36,7 +36,7 @@ run-example: bin/build_js build/pbc.wasm build/wasm_exec.js
 	bin/build_js -s -p $(EXAMPLE_PORT)
 
 pbupdate:
-	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop && go mod vendor
+	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@feature/musgo && go mod vendor
 #test:
 #	go test -v -race ./...
 #

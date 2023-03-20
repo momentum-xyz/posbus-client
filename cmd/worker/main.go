@@ -10,7 +10,6 @@ import (
 
 	"github.com/momentum-xyz/posbus-client/pbc"
 	"github.com/momentum-xyz/ubercontroller/logger"
-	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/utils"
 	"github.com/momentum-xyz/ubercontroller/utils/umid"
@@ -95,12 +94,7 @@ func Teleport(this js.Value, args []js.Value) any {
 		logger.L().Error("invalid world ID %s", err)
 		return nil
 	}
-	go client.Send(
-		posbus.NewMessageFromData(
-			posbus.TypeTeleportRequest,
-			posbus.TeleportRequest{Target: world},
-		).Buf(),
-	)
+	go client.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: world}))
 	return nil
 }
 
@@ -126,22 +120,22 @@ func Send(this js.Value, args []js.Value) interface{} {
 	}
 	dataString := []byte(args[1].String())
 	//fmt.Println(dataString)
-	var msg *posbus.Message
+	var msg posbus.Message
 	switch msgId {
-	case posbus.TypeSetUsersTransforms:
-		return nil
-	case posbus.TypeSendTransform:
-		p := cmath.NewUserTransform()
-		json.Unmarshal(dataString, &p)
-		msg = posbus.NewMessageFromBuffer(
-			posbus.TypeSendTransform,
-			p.Bytes(),
-		)
-	case posbus.TypeGenericMessage:
-		msg = posbus.NewMessageFromBuffer(
-			posbus.TypeSendTransform,
-			[]byte(dataString),
-		)
+	//case posbus.TypeSetUsersTransforms:
+	//	return nil
+	////case posbus.TypeSendTransform:
+	//	p := cmath.NewUserTransform()
+	//	json.Unmarshal(dataString, &p)
+	//	msg = posbus.NewMessageFromBuffer(
+	//		posbus.TypeSendTransform,
+	//		p.Bytes(),
+	//	)
+	//case posbus.TypeGenericMessage:
+	//	msg = posbus.NewMessageFromBuffer(
+	//		posbus.TypeSendTransform,
+	//		[]byte(dataString),
+	//	)
 	default:
 		v := reflect.New(posbus.MessageDataTypeById(msgId)).Interface()
 		err := json.Unmarshal(dataString, v)
@@ -149,9 +143,9 @@ func Send(this js.Value, args []js.Value) interface{} {
 			logger.L().Debugf("PB Send: cant unmarshal JSON : %+v\n", string(dataString))
 			return nil
 		}
-		msg = posbus.NewMessageFromData(msgId, v)
+		msg = v.(posbus.Message)
 	}
-	client.Send(msg.Buf())
+	client.Send(posbus.BinMessage(msg))
 
 	return nil
 }
@@ -211,23 +205,25 @@ func SetPort(this js.Value, args []js.Value) any {
 // Helper to run a goroutine as a javascript Promise executor.
 func promiseExecutor(f func() error) js.Func {
 	var jsHandler js.Func
-	jsHandler = js.FuncOf(func(this js.Value, args []js.Value) any {
-		if len(args) != 2 {
-			logger.L().Error("Promise executor: only 2 args allowed")
-			return nil
-		}
-		resolve := args[0]
-		reject := args[1]
-		go func() {
-			defer jsHandler.Release()
-			if err := f(); err != nil {
-				reject.Invoke(err) // hmm, are errors transferable?
-				return
+	jsHandler = js.FuncOf(
+		func(this js.Value, args []js.Value) any {
+			if len(args) != 2 {
+				logger.L().Error("Promise executor: only 2 args allowed")
+				return nil
 			}
-			resolve.Invoke()
-		}()
-		return nil
-	})
+			resolve := args[0]
+			reject := args[1]
+			go func() {
+				defer jsHandler.Release()
+				if err := f(); err != nil {
+					reject.Invoke(err) // hmm, are errors transferable?
+					return
+				}
+				resolve.Invoke()
+			}()
+			return nil
+		},
+	)
 	return jsHandler
 }
 
