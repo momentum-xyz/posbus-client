@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node-lts-strictest-esm/tsconfig.json",
-  "include": ["ts/**/*.ts"],
+  "include": ["ts/**/*.ts","build/constants.ts","build/message_channel_types.d.ts"],
   "compilerOptions": {
     "rootDirs": ["ts", "build"],
     "composite": true,

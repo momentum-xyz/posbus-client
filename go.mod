@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/evanw/esbuild v0.17.11
 	github.com/gzuidhof/tygo v0.2.5
-	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230320140213-34315415b49f
+	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230320161634-dce3ac6519e6
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.24.0
 	nhooyr.io/websocket v1.8.7

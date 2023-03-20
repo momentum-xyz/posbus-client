@@ -1,5 +1,6 @@
 import type * as posbus from "./posbus";
-import type { MsgType } from "./constants";
+import type { MsgType } from "../build/constants";
+import *  from "message_channel_types";
 
 /**
  * The actual Postbus messages are send through postMessage/onmessage, encapsulated inside a tuple to pass along its type.
@@ -12,18 +13,14 @@ import type { MsgType } from "./constants";
 
 
 // Incoming!
-export type SignalType = [MsgType.SIGNAL, posbus.Signal]
-export type SetWorldType = [MsgType.SET_WORLD, posbus.SetWorldData]
-export type AddObjectsType = [MsgType.ADD_OBJECTS, posbus.AddObjects]
-export type SetUsersTransformsType = [MsgType.SET_USER_TRANSFORM, posbus.SetUsersTransforms]
 
 export type IncomingMessage = SignalType | SetWorldType | AddObjectsType | SetUsersTransformsType;
 
 // Outgoing!
-export type PositionTransformType = [MsgType.SEND_TRANSFORM, posbus.UserTransform]
-export type UserActionType = [MsgType.USER_ACTION, Record<string, unknown>];  // TODO
+// export type PositionTransformType = [MsgType.MY_TRANSFORM, posbus.MyTransform]
+// export type UserActionType = [MsgType.USER_ACTION, Record<string, unknown>];  // TODO
 
-export type PostbusMessage = PositionTransformType | UserActionType;
+export type PostbusMessage = PositionTransformType ;//| UserActionType;
 
 
 export interface PosbusEvent extends MessageEvent {
