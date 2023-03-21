@@ -83,14 +83,14 @@ func main() {
 	os.Exit(0)
 }
 
-func onMessage(msgType posbus.MsgType, data interface{}) error {
+func onMessage(msg posbus.Message) error {
 
 	r := make(map[string]interface{})
-	err := utils.MapDecode(data, &r)
+	err := utils.MapDecode(msg, &r)
 	//r, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println(err, posbus.MessageNameById(msgType))
+		fmt.Println(err, posbus.MessageNameById(msg.Type()))
 	}
-	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msgType), r)
+	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.Type()), r)
 	return nil
 }

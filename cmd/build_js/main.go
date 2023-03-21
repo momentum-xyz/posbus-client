@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"sort"
 	"strings"
 	"syscall"
 
@@ -189,13 +188,6 @@ func generateTypes(ctx context.Context) error {
 }
 
 func generateConstants(ctx context.Context) error {
-	msgNames := make([]string, 0, len(posbus.IdsCheck))
-	typeMap := make(map[string]posbus.MsgType)
-	for id, name := range posbus.IdsCheck {
-		msgNames = append(msgNames, name)
-		typeMap[name] = id
-	}
-	sort.Strings(msgNames)
 
 	f, err := os.Create("build/constants.ts")
 	if err != nil {
@@ -207,8 +199,8 @@ func generateConstants(ctx context.Context) error {
 	_, err = fmt.Fprintf(w, "export enum MsgType {\n")
 	check_error(err)
 
-	for _, msgName := range msgNames {
-
+	for _, msgId := range posbus.GetMessageIds() {
+		msgName := posbus.MessageNameById(msgId)
 		_, err = fmt.Fprintf(w, "  %+v = \"%s\",\n", strings.ToUpper(msgName), msgName)
 		check_error(err)
 	}
@@ -220,13 +212,6 @@ func generateConstants(ctx context.Context) error {
 }
 
 func generateChannelTypes(ctx context.Context) error {
-	msgNames := make([]string, 0, len(posbus.IdsCheck))
-	typeMap := make(map[string]posbus.MsgType)
-	for id, name := range posbus.IdsCheck {
-		msgNames = append(msgNames, name)
-		typeMap[name] = id
-	}
-	sort.Strings(msgNames)
 
 	f2, err := os.Create("build/message_channel_types.d.ts")
 	if err != nil {
@@ -240,8 +225,9 @@ func generateChannelTypes(ctx context.Context) error {
 	)
 	check_error(err)
 
-	for _, msgName := range msgNames {
-		typeName := posbus.MessageDataTypeById(typeMap[msgName]).Name()
+	for _, msgId := range posbus.GetMessageIds() {
+		msgName := posbus.MessageNameById(msgId)
+		typeName := posbus.MessageTypeNameById(msgId)
 		_, err = fmt.Fprintf(
 			w2, "export type %sType = [MsgType.%s, posbus.%s];\n", typeName, strings.ToUpper(msgName), typeName,
 		)

@@ -33,7 +33,7 @@ type Client struct {
 	send          chan []byte
 	hs            posbus.HandShake
 	currentTarget umid.UMID
-	callback      func(msgType posbus.MsgType, data interface{}) error
+	callback      func(data posbus.Message) error
 }
 
 func NewClient() *Client {
@@ -71,7 +71,7 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	//}
 	c.startIOPumps(ctx)
 	c.Send(posbus.BinMessage(&c.hs))
-	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnected})
+	c.callback(&posbus.Signal{Value: posbus.SignalConnected})
 	if reconnect {
 		c.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: c.currentTarget}))
 	}
@@ -88,7 +88,7 @@ func (c *Client) SetURL(url string) error {
 	return nil
 }
 
-func (c *Client) SetCallback(f func(msgType posbus.MsgType, msg interface{}) error) error {
+func (c *Client) SetCallback(f func(msg posbus.Message) error) error {
 	c.callback = f
 	return nil
 }
@@ -141,7 +141,7 @@ func (c *Client) readPump(ctx context.Context) {
 		}
 	}
 	c.conn.Close(websocket.StatusNormalClosure, "")
-	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionClosed})
+	c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed})
 	c.log.Infof("PBC: end of read pump")
 	if ctx.Err() == nil {
 		// Only try reconnecting if it was not cancelled by us
@@ -182,37 +182,16 @@ func (c *Client) processMessage(buf []byte) error {
 		return errors.WithMessagef(err, "PBC: read pump: failed to decode message")
 	}
 
-	var data interface{}
-	switch msg.Type() {
-	//case posbus.TypeUsersTransformList:
-	//	upb := posbus.BytesToUserTransformBuffer(msg.Msg())
-	//	if upb == nil {
-	//		return nil
-	//	}
-	//	data = utils.GetPTR(upb.Decode())
-	//case posbus.TypeMyTransform:
-	//	data=(*cmath.UserTransform)(msg.(*posbus.MyTransform)).Copy()
-	//case posbus.TypeGenericMessage:
-	//	data = msg.(*posbus.GenericMessage).Data
-	default:
-		//fmt.Println(string(msg.Buf()))
-		data = msg
-		if msg.Type() == posbus.TypeSetWorld {
-			c.currentTarget = data.(*posbus.SetWorld).ID
-		}
-
+	if msg.Type() == posbus.TypeSetWorld {
+		c.currentTarget = msg.(*posbus.SetWorld).ID
 	}
 
-	if err != nil {
-		return err
-	}
-	c.callback(msg.Type(), data)
+	c.callback(msg)
 	return nil
 }
 
-func (c *Client) defaultCallback(msgType posbus.MsgType, data interface{}) error {
-	msgName := posbus.MessageNameById(msgType)
+func (c *Client) defaultCallback(data posbus.Message) error {
+	msgName := posbus.MessageNameById(data.Type())
 	c.log.Infof("PSB: got a message of type: %+v , data: %+v\n", msgName, data)
 	return nil
-
 }

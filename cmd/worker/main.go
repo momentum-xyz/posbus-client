@@ -172,15 +172,15 @@ func msgGoToJs(data any) (map[string]any, error) {
 	return r, nil
 }
 
-func onMessage(msgType posbus.MsgType, data interface{}) error {
+func onMessage(msg posbus.Message) error {
 	// workaround: process in goroutine to avoid locking event thread
 	go func() {
-		r, err := msgGoToJs_json(data)
+		r, err := msgGoToJs_json(msg)
 		if err != nil {
 			logger.L().Error("to map", err)
 			return
 		}
-		typeName := posbus.MessageNameById(msgType)
+		typeName := posbus.MessageNameById(msg.Type())
 		logger.L().Debugf("Incoming message: %+v %+v\n", typeName, r)
 		if msgPort.IsUndefined() {
 			logger.L().Error("No port to post message to")
