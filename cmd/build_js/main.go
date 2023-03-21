@@ -7,12 +7,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"log"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gzuidhof/tygo/tygo"
@@ -71,15 +72,22 @@ export interface UserTransform {
   location: Vec3;
   rotation: Vec3;
 }
+
 export type SlotType = "" | "texture" | "string" | "number";
 
-export interface SetUserTransform {
-    id: string;
-    transform: UserTransform
+// source: object_data.go replaced
+export interface ObjectData {
+    id: string,
+    entries: { SlotType: {[key: string]: any} }
 }
-export interface SetUsersTransforms {
-    value: SetUserTransform[];
-}
+
+// source: message.go replaced
+export type MsgType = number;
+
+// source: users_transform_list.go patch
+const MsgUUIDTypeSize = 16;
+
+
 `
 
 func main() {
@@ -167,7 +175,7 @@ func generateTypes(ctx context.Context) error {
 		Packages: []*tygo.PackageConfig{
 			&tygo.PackageConfig{
 				Path:       "github.com/momentum-xyz/ubercontroller/pkg/posbus",
-				OutputPath: "build/posbus.d.ts",
+				OutputPath: "build/posbus.ts",
 				//IncludeFiles: []string{"types.autogen.go"},
 				Frontmatter: extraTypes,
 				TypeMappings: map[string]string{
@@ -175,9 +183,13 @@ func generateTypes(ctx context.Context) error {
 					"dto.Asset3dType":       "string",
 					"cmath.ObjectTransform": "ObjectTransform",
 					"cmath.UserTransform":   "UserTransform",
+					"cmath.Float32Bytes":    "4",
 					"entry.UnitySlotType":   "SlotType",
 				},
-				ExcludeFiles: []string{"message.go"},
+				ExcludeFiles: []string{
+					"message.go",
+					"object_data.go", // TODO: fix ObjectData.Entries type
+				},
 				FallbackType: "any",
 			},
 		},
@@ -213,7 +225,7 @@ func generateConstants(ctx context.Context) error {
 
 func generateChannelTypes(ctx context.Context) error {
 
-	f2, err := os.Create("build/message_channel_types.d.ts")
+	f2, err := os.Create("build/channel_types.ts")
 	if err != nil {
 		panic(err)
 	}
