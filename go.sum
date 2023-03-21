@@ -78,6 +78,12 @@ github.com/momentum-xyz/ubercontroller v0.1.3-0.20230320161634-dce3ac6519e6 h1:q
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230320161634-dce3ac6519e6/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321124313-8ac69c8b24f3 h1:MZV4FTCOJDRK9qvPzFIge50t30JNzsw9Wwo8EQ3HYAk=
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321124313-8ac69c8b24f3/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321212535-161985938662 h1:0i8ZhOOxseN9pBc+Bv8P2M2d7EFGJdkDaEiWeBRp/Uw=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321212535-161985938662/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321213358-44a11eee128c h1:WxtFWG4ZUTydnkibkY8wJdiWgTchA6lqpfaUHJ2C/rU=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321213358-44a11eee128c/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321214408-b0147deba4bf h1:yqIyeabOUC0YKLzImcE9vhorPAJft+rDpnksu2NZZo4=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230321214408-b0147deba4bf/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
 github.com/pelletier/go-toml/v2 v2.0.7 h1:muncTPStnKRos5dpVKULv2FVd4bMOhNePj9CjgDb8Us=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

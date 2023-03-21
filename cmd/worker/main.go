@@ -5,7 +5,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"reflect"
 	"syscall/js"
 
 	"github.com/momentum-xyz/posbus-client/pbc"
@@ -119,32 +118,18 @@ func Send(this js.Value, args []js.Value) interface{} {
 		return nil
 	}
 	dataString := []byte(args[1].String())
-	//fmt.Println(dataString)
-	var msg posbus.Message
-	switch msgId {
-	//case posbus.TypeSetUsersTransforms:
-	//	return nil
-	////case posbus.TypeSendTransform:
-	//	p := cmath.NewUserTransform()
-	//	json.Unmarshal(dataString, &p)
-	//	msg = posbus.NewMessageFromBuffer(
-	//		posbus.TypeSendTransform,
-	//		p.Bytes(),
-	//	)
-	//case posbus.TypeGenericMessage:
-	//	msg = posbus.NewMessageFromBuffer(
-	//		posbus.TypeSendTransform,
-	//		[]byte(dataString),
-	//	)
-	default:
-		v := reflect.New(posbus.MessageDataTypeById(msgId)).Interface()
-		err := json.Unmarshal(dataString, v)
-		if err != nil {
-			logger.L().Debugf("PB Send: cant unmarshal JSON : %+v\n", string(dataString))
-			return nil
-		}
-		msg = v.(posbus.Message)
+
+	msg, err := posbus.NewMessageOfType(msgId)
+	if err != nil {
+		logger.L().Debugf("PB Send: cant Allocate message variable with type  : %+v\n", msgId)
+		return nil
 	}
+	err = json.Unmarshal(dataString, msg)
+	if err != nil {
+		logger.L().Debugf("PB Send: cant unmarshal JSON : %+v\n", string(dataString))
+		return nil
+	}
+
 	client.Send(posbus.BinMessage(msg))
 
 	return nil
