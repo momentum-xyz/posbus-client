@@ -1,17 +1,8 @@
 {
-  "extends": "@tsconfig/node-lts-strictest-esm/tsconfig.json",
-  "include": ["ts/**/*.ts","build/constants.ts","build/message_channel_types.d.ts"],
-  "compilerOptions": {
-    "rootDirs": ["ts", "build"],
-    "composite": true,
-    "declaration": true,
-    "declarationDir": "dist",
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "checkJs": false,
-    "isolatedModules": true,
-    "lib": ["DOM", "ESNext", "WebWorker"],
-    "outDir": "dist",
-    "ignoreDeprecations": "5.0"
-  }
+    "files": [],
+    "include": [],
+    "references": [
+        { "path": "./ts" },
+        { "path": "./tsconfig-build.json" }
+    ]
 }
