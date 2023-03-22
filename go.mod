@@ -3,7 +3,7 @@ module github.com/momentum-xyz/posbus-client
 go 1.20
 
 require (
-	github.com/evanw/esbuild v0.17.11
+	github.com/evanw/esbuild v0.17.12
 	github.com/gzuidhof/tygo v0.2.5
 	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230322100913-958c61b1fe9f
 	github.com/pkg/errors v0.9.1
