@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "go run ./cmd/build_js",
-    "build:types": "cp ./tsconfig-build.json build/tsconfig.json && tsc --build -v tsconfig.json",
+    "build:types": "tsc --build -v tsconfig.json",
     "prepare": "make clean build",
     "lint": "eslint --ext .js,.ts .",
     "prestart": "make clean build/pbc.wasm build/wasm_exec.js",

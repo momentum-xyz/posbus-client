@@ -1,5 +1,5 @@
 {
   "files": [],
   "include": [],
-  "references": [{ "path": "./ts" }, { "path": "./build" }]
+  "references": [{ "path": "./ts" }, { "path": "./tsconfig-build.json" }]
 }

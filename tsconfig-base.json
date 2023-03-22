@@ -2,6 +2,7 @@
   "extends": "@tsconfig/node-lts-strictest-esm/tsconfig.json",
   "include": ["**/*.ts"],
   "compilerOptions": {
+    "rootDir": ".",
     "composite": true,
     "declaration": true,
     "declarationDir": "dist",
