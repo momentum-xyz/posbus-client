@@ -8,19 +8,21 @@
   "browser": "dist/index.mjs",
   "exports": {
     ".": {
-      "module": "./dist/index.mjs"
+      "module": "./dist/index.mjs",
+      "types": "./dist/ts/index.d.ts"
     },
     "./worker": {
-      "module": "./dist/worker.mjs"
+      "module": "./dist/worker.mjs",
+      "types": "./dist/ts/worker.d.ts"
     }
   },
-  "types": "dist/index.d.ts",
+  "types": "dist/ts/index.d.ts",
   "files": [
     "dist/"
   ],
   "scripts": {
     "build": "go run ./cmd/build_js",
-    "build:types": "tsc --build tsconfig.json",
+    "build:types": "cp ./tsconfig-build.json build/tsconfig.json && tsc --build -v tsconfig.json",
     "prepare": "make clean build",
     "lint": "eslint --ext .js,.ts .",
     "prestart": "make clean build/pbc.wasm build/wasm_exec.js",
