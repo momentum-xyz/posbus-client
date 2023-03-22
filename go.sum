@@ -58,8 +58,8 @@ github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJ
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
 github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9Gz0M=
-github.com/momentum-xyz/ubercontroller v0.1.3-0.20230322100913-958c61b1fe9f h1:7NolYexDLCg89jwyjfE//ZNOPi2D7IDaJSMcNTLfRfI=
-github.com/momentum-xyz/ubercontroller v0.1.3-0.20230322100913-958c61b1fe9f/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230322105205-73fb3afdde82 h1:FrVqEkplcHHJ/UGzSiEzF+hURHyP009Br8IUtKOa0kU=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230322105205-73fb3afdde82/go.mod h1:aiuVj69Glmxj2PIXjm0vwa+LuyQbnrx4Md3oeEUE1n4=
 github.com/pelletier/go-toml/v2 v2.0.7 h1:muncTPStnKRos5dpVKULv2FVd4bMOhNePj9CjgDb8Us=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

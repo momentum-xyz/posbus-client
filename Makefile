@@ -35,7 +35,7 @@ run-example: bin/build_js build/pbc.wasm build/wasm_exec.js
 	bin/build_js -s -p $(EXAMPLE_PORT)
 
 pbupdate:
-	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@musgo && go mod vendor
+	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop && go mod vendor
 #test:
 #	go test -v -race ./...
 #
