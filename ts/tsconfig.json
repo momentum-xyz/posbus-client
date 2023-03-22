@@ -2,7 +2,7 @@
   "extends": "../tsconfig-base",
   "include": ["**/*.ts"],
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "../dist"
   },
   "references": [{ "path": "../tsconfig-build.json" }]
 }
