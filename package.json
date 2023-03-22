@@ -3,9 +3,10 @@
   "version": "0.0.1-alpha.3",
   "description": "Javascript client for Momentum websocket protocol",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "module": "dist/index.mjs",
   "browser": "dist/index.mjs",
+  "types": "dist/ts/index.d.ts",
   "exports": {
     ".": {
       "module": "./dist/index.mjs",
@@ -16,7 +17,6 @@
       "types": "./dist/ts/worker.d.ts"
     }
   },
-  "types": "dist/ts/index.d.ts",
   "files": [
     "dist/"
   ],
