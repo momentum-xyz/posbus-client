@@ -104,7 +104,7 @@ Example: publish a prerelase version on Github packages:
 
 ```
 npm version prerelease
-git push
+git push --tags
 ```
 
 Should work if your local git is setup to properly all sign commits and push tags by default.
