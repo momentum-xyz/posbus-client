@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build": "go run ./cmd/build_js",
-    "build:types": "tsc -project tsconfig.json",
+    "build:types": "tsc --build tsconfig.json",
     "prepare": "make clean build",
     "lint": "eslint --ext .js,.ts .",
     "prestart": "make clean build/pbc.wasm build/wasm_exec.js",
@@ -50,6 +50,6 @@
     "eslint-config-prettier": "8.7.0",
     "eslint-config-standard-with-typescript": "34.0.0",
     "prettier": "2.8.4",
-    "typescript": "5.0.2"
+    "typescript": "^5.0.2"
   }
 }

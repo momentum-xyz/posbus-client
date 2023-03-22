@@ -3,13 +3,17 @@ package main
 // ESBuild - https://esbuild.github.io
 
 import (
+	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+
+	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/gzuidhof/tygo/tygo"
@@ -68,15 +72,22 @@ export interface UserTransform {
   location: Vec3;
   rotation: Vec3;
 }
+
 export type SlotType = "" | "texture" | "string" | "number";
 
-export interface SetUserTransform {
-    id: string;
-    transform: UserTransform
+// source: object_data.go replaced
+export interface ObjectData {
+    id: string,
+    entries: { SlotType: {[key: string]: any} }
 }
-export interface SetUsersTransforms {
-    value: SetUserTransform[];
-}
+
+// source: message.go replaced
+export type MsgType = number;
+
+// source: users_transform_list.go patch
+const MsgUUIDTypeSize = 16;
+
+
 `
 
 func main() {
@@ -97,7 +108,19 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	err := generateTypes(ctx)
+	err := generateConstants(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Generated constants")
+
+	err = generateChannelTypes(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Generated channel types")
+
+	err = generateTypes(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -151,16 +174,21 @@ func generateTypes(ctx context.Context) error {
 	config := &tygo.Config{
 		Packages: []*tygo.PackageConfig{
 			&tygo.PackageConfig{
-				Path:         "github.com/momentum-xyz/ubercontroller/pkg/posbus",
-				OutputPath:   "build/posbus.d.ts",
-				IncludeFiles: []string{"types.go"},
-				Frontmatter:  extraTypes,
+				Path:       "github.com/momentum-xyz/ubercontroller/pkg/posbus",
+				OutputPath: "build/posbus.ts",
+				//IncludeFiles: []string{"types.autogen.go"},
+				Frontmatter: extraTypes,
 				TypeMappings: map[string]string{
 					"umid.UMID":             "string",
 					"dto.Asset3dType":       "string",
 					"cmath.ObjectTransform": "ObjectTransform",
 					"cmath.UserTransform":   "UserTransform",
+					"cmath.Float32Bytes":    "4",
 					"entry.UnitySlotType":   "SlotType",
+				},
+				ExcludeFiles: []string{
+					"message.go",
+					"object_data.go", // TODO: fix ObjectData.Entries type
 				},
 				FallbackType: "any",
 			},
@@ -169,4 +197,61 @@ func generateTypes(ctx context.Context) error {
 	gen := tygo.New(config)
 	err := gen.Generate()
 	return err
+}
+
+func generateConstants(ctx context.Context) error {
+
+	f, err := os.Create("build/constants.ts")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	_, err = fmt.Fprintf(w, "export enum MsgType {\n")
+	check_error(err)
+
+	for _, msgId := range posbus.GetMessageIds() {
+		msgName := posbus.MessageNameById(msgId)
+		_, err = fmt.Fprintf(w, "  %+v = \"%s\",\n", strings.ToUpper(msgName), msgName)
+		check_error(err)
+	}
+	_, err = fmt.Fprintf(w, "}")
+	check_error(err)
+	w.Flush()
+
+	return nil
+}
+
+func generateChannelTypes(ctx context.Context) error {
+
+	f2, err := os.Create("build/channel_types.ts")
+	if err != nil {
+		panic(err)
+	}
+	defer f2.Close()
+	w2 := bufio.NewWriter(f2)
+
+	_, err = fmt.Fprintf(
+		w2, "import type * as posbus from \"./posbus\";\nimport type { MsgType } from \"./constants\";\n",
+	)
+	check_error(err)
+
+	for _, msgId := range posbus.GetMessageIds() {
+		msgName := posbus.MessageNameById(msgId)
+		typeName := posbus.MessageTypeNameById(msgId)
+		_, err = fmt.Fprintf(
+			w2, "export type %sType = [MsgType.%s, posbus.%s];\n", typeName, strings.ToUpper(msgName), typeName,
+		)
+		check_error(err)
+	}
+	w2.Flush()
+
+	return nil
+}
+
+func check_error(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

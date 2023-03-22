@@ -5,12 +5,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"reflect"
 	"syscall/js"
 
 	"github.com/momentum-xyz/posbus-client/pbc"
 	"github.com/momentum-xyz/ubercontroller/logger"
-	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/utils"
 	"github.com/momentum-xyz/ubercontroller/utils/umid"
@@ -95,12 +93,7 @@ func Teleport(this js.Value, args []js.Value) any {
 		logger.L().Error("invalid world ID %s", err)
 		return nil
 	}
-	go client.Send(
-		posbus.NewMessageFromData(
-			posbus.TypeTeleportRequest,
-			posbus.TeleportRequest{Target: world},
-		).Buf(),
-	)
+	go client.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: world}))
 	return nil
 }
 
@@ -125,33 +118,19 @@ func Send(this js.Value, args []js.Value) interface{} {
 		return nil
 	}
 	dataString := []byte(args[1].String())
-	//fmt.Println(dataString)
-	var msg *posbus.Message
-	switch msgId {
-	case posbus.TypeSetUsersTransforms:
+
+	msg, err := posbus.NewMessageOfType(msgId)
+	if err != nil {
+		logger.L().Debugf("PB Send: cant Allocate message variable with type  : %+v\n", msgId)
 		return nil
-	case posbus.TypeSendTransform:
-		p := cmath.NewUserTransform()
-		json.Unmarshal(dataString, &p)
-		msg = posbus.NewMessageFromBuffer(
-			posbus.TypeSendTransform,
-			p.Bytes(),
-		)
-	case posbus.TypeGenericMessage:
-		msg = posbus.NewMessageFromBuffer(
-			posbus.TypeSendTransform,
-			[]byte(dataString),
-		)
-	default:
-		v := reflect.New(posbus.MessageDataTypeById(msgId)).Interface()
-		err := json.Unmarshal(dataString, v)
-		if err != nil {
-			logger.L().Debugf("PB Send: cant unmarshal JSON : %+v\n", string(dataString))
-			return nil
-		}
-		msg = posbus.NewMessageFromData(msgId, v)
 	}
-	client.Send(msg.Buf())
+	err = json.Unmarshal(dataString, msg)
+	if err != nil {
+		logger.L().Debugf("PB Send: cant unmarshal JSON : %+v\n", string(dataString))
+		return nil
+	}
+
+	client.Send(posbus.BinMessage(msg))
 
 	return nil
 }
@@ -178,15 +157,15 @@ func msgGoToJs(data any) (map[string]any, error) {
 	return r, nil
 }
 
-func onMessage(msgType posbus.MsgType, data interface{}) error {
+func onMessage(msg posbus.Message) error {
 	// workaround: process in goroutine to avoid locking event thread
 	go func() {
-		r, err := msgGoToJs_json(data)
+		r, err := msgGoToJs_json(msg)
 		if err != nil {
 			logger.L().Error("to map", err)
 			return
 		}
-		typeName := posbus.MessageNameById(msgType)
+		typeName := posbus.MessageNameById(msg.Type())
 		logger.L().Debugf("Incoming message: %+v %+v\n", typeName, r)
 		if msgPort.IsUndefined() {
 			logger.L().Error("No port to post message to")
@@ -211,23 +190,25 @@ func SetPort(this js.Value, args []js.Value) any {
 // Helper to run a goroutine as a javascript Promise executor.
 func promiseExecutor(f func() error) js.Func {
 	var jsHandler js.Func
-	jsHandler = js.FuncOf(func(this js.Value, args []js.Value) any {
-		if len(args) != 2 {
-			logger.L().Error("Promise executor: only 2 args allowed")
-			return nil
-		}
-		resolve := args[0]
-		reject := args[1]
-		go func() {
-			defer jsHandler.Release()
-			if err := f(); err != nil {
-				reject.Invoke(err) // hmm, are errors transferable?
-				return
+	jsHandler = js.FuncOf(
+		func(this js.Value, args []js.Value) any {
+			if len(args) != 2 {
+				logger.L().Error("Promise executor: only 2 args allowed")
+				return nil
 			}
-			resolve.Invoke()
-		}()
-		return nil
-	})
+			resolve := args[0]
+			reject := args[1]
+			go func() {
+				defer jsHandler.Release()
+				if err := f(); err != nil {
+					reject.Invoke(err) // hmm, are errors transferable?
+					return
+				}
+				resolve.Invoke()
+			}()
+			return nil
+		},
+	)
 	return jsHandler
 }
 

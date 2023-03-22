@@ -1,5 +1,4 @@
-import type * as posbus from "./posbus";
-import type { MsgType } from "./constants";
+import type * as msg from "../build/channel_types";
 
 /**
  * The actual Postbus messages are send through postMessage/onmessage, encapsulated inside a tuple to pass along its type.
@@ -10,21 +9,21 @@ import type { MsgType } from "./constants";
  * This also avoids conflict, if the message has a field names type itself (since we have generic messages).
  */
 
-
 // Incoming!
-export type SignalType = [MsgType.SIGNAL, posbus.Signal]
-export type SetWorldType = [MsgType.SET_WORLD, posbus.SetWorldData]
-export type AddObjectsType = [MsgType.ADD_OBJECTS, posbus.AddObjects]
-export type SetUsersTransformsType = [MsgType.SET_USER_TRANSFORM, posbus.SetUsersTransforms]
 
-export type IncomingMessage = SignalType | SetWorldType | AddObjectsType | SetUsersTransformsType;
+export type IncomingMessage =
+  | msg.SignalType
+  | msg.SetWorldType
+  | msg.MyTransformType
+  | msg.AddUsersType
+  | msg.AddObjectsType
+  | msg.UsersTransformListType;
 
 // Outgoing!
-export type PositionTransformType = [MsgType.SEND_TRANSFORM, posbus.UserTransform]
-export type UserActionType = [MsgType.USER_ACTION, Record<string, unknown>];  // TODO
+// export type PositionTransformType = [MsgType.MY_TRANSFORM, posbus.MyTransform]
+// export type UserActionType = [MsgType.USER_ACTION, Record<string, unknown>];  // TODO
 
-export type PostbusMessage = PositionTransformType | UserActionType;
-
+export type PostbusMessage = msg.ObjectPositionType | msg.GenericMessageType;
 
 export interface PosbusEvent extends MessageEvent {
   data: IncomingMessage;
@@ -35,4 +34,5 @@ export interface PosbusPort extends MessagePort {
   postMessage: (message: PostbusMessage) => void;
 }
 
-export type * as posbus from "./posbus";
+
+export type * as posbus from "../build/posbus";

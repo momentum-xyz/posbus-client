@@ -5,9 +5,7 @@ import (
 	"time"
 
 	"github.com/momentum-xyz/ubercontroller/logger"
-	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
-	"github.com/momentum-xyz/ubercontroller/utils"
 	"github.com/momentum-xyz/ubercontroller/utils/umid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -35,7 +33,7 @@ type Client struct {
 	send          chan []byte
 	hs            posbus.HandShake
 	currentTarget umid.UMID
-	callback      func(msgType posbus.MsgType, data interface{}) error
+	callback      func(data posbus.Message) error
 }
 
 func NewClient() *Client {
@@ -62,7 +60,7 @@ func (c *Client) Send(msg []byte) {
 
 func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	var err error
-	c.log.Infof("PBC: connecting (re:%s)... ", reconnect)
+	c.log.Infof("PBC: connecting (re:%v)... ", reconnect)
 	for ok := true; ok; ok = err != nil {
 		c.conn, _, err = websocket.Dial(ctx, c.url, nil)
 		time.Sleep(time.Second)
@@ -72,14 +70,10 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	//	return err
 	//}
 	c.startIOPumps(ctx)
-	c.Send(posbus.NewMessageFromData(posbus.TypeHandShake, c.hs).Buf())
-	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnected})
+	c.Send(posbus.BinMessage(&c.hs))
+	c.callback(&posbus.Signal{Value: posbus.SignalConnected})
 	if reconnect {
-		c.Send(
-			posbus.NewMessageFromData(
-				posbus.TypeTeleportRequest, c.currentTarget,
-			).Buf(),
-		)
+		c.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: c.currentTarget}))
 	}
 	return nil
 }
@@ -94,7 +88,7 @@ func (c *Client) SetURL(url string) error {
 	return nil
 }
 
-func (c *Client) SetCallback(f func(msgType posbus.MsgType, msg interface{}) error) error {
+func (c *Client) SetCallback(f func(msg posbus.Message) error) error {
 	c.callback = f
 	return nil
 }
@@ -141,13 +135,13 @@ func (c *Client) readPump(ctx context.Context) {
 		if messageType != websocket.MessageBinary {
 			c.log.Errorf("PBC: read pump: wrong incoming message type: %d", messageType)
 		} else {
-			if err := c.processMessage(posbus.BytesToMessage(message)); err != nil {
-				c.log.Warn(errors.WithMessagef(err, "PBC: read pump: failed to handle message"))
+			if err := c.processMessage(message); err != nil {
+				c.log.Warn(errors.WithMessagef(err, "PBC: read pump: failed to handle message %+v", message))
 			}
 		}
 	}
 	c.conn.Close(websocket.StatusNormalClosure, "")
-	c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionClosed})
+	c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed})
 	c.log.Infof("PBC: end of read pump")
 	if ctx.Err() == nil {
 		// Only try reconnecting if it was not cancelled by us
@@ -182,41 +176,22 @@ func (c *Client) writePump(ctx context.Context) {
 	}
 }
 
-func (c *Client) processMessage(msg *posbus.Message) error {
-	var err error
-	var data interface{}
-	switch msg.Type() {
-	case posbus.TypeSetUsersTransforms:
-		upb := posbus.BytesToUserTransformBuffer(msg.Msg())
-		if upb == nil {
-			return nil
-		}
-		data = utils.GetPTR(upb.Decode())
-	case posbus.TypeSendTransform:
-		d := cmath.NewUserTransform()
-		d.CopyFromBuffer(msg.Msg())
-		data = &d
-	case posbus.TypeGenericMessage:
-		data = msg.Msg()
-	default:
-		//fmt.Println(string(msg.Buf()))
-		data, err = msg.Decode()
-		if msg.Type() == posbus.TypeSetWorld {
-			c.currentTarget = data.(*posbus.SetWorldData).ID
-		}
-
-	}
-
+func (c *Client) processMessage(buf []byte) error {
+	msg, err := posbus.Decode(buf)
 	if err != nil {
-		return err
+		return errors.WithMessagef(err, "PBC: read pump: failed to decode message")
 	}
-	c.callback(msg.Type(), data)
+
+	if msg.Type() == posbus.TypeSetWorld {
+		c.currentTarget = msg.(*posbus.SetWorld).ID
+	}
+
+	c.callback(msg)
 	return nil
 }
 
-func (c *Client) defaultCallback(msgType posbus.MsgType, data interface{}) error {
-	msgName := posbus.MessageNameById(msgType)
+func (c *Client) defaultCallback(data posbus.Message) error {
+	msgName := posbus.MessageNameById(data.Type())
 	c.log.Infof("PSB: got a message of type: %+v , data: %+v\n", msgName, data)
 	return nil
-
 }
