@@ -18,7 +18,8 @@
     }
   },
   "files": [
-    "dist/"
+    "dist/",
+    "!*.tsbuildinfo"
   ],
   "scripts": {
     "build": "go run ./cmd/build_js",
