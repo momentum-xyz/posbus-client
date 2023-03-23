@@ -9,25 +9,13 @@ import type * as msg from "../build/channel_types";
  * This also avoids conflict, if the message has a field names type itself (since we have generic messages).
  */
 
-// Incoming!
-
-export type IncomingMessage =
-  | msg.SignalType
-  | msg.SetWorldType
-  | msg.MyTransformType
-  | msg.AddUsersType
-  | msg.AddObjectsType
-  | msg.UsersTransformListType;
-
-
 export interface PosbusEvent extends MessageEvent {
-  data: IncomingMessage;
+  data: msg.PosbusMessage;
 }
 
 export interface PosbusPort extends MessagePort {
   onmessage: ((this: MessagePort, ev: PosbusEvent) => any) | null;
   postMessage: (message: msg.PosbusMessage) => void;
 }
-
 
 export type * as posbus from "../build/posbus";
