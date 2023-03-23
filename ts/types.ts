@@ -19,11 +19,6 @@ export type IncomingMessage =
   | msg.AddObjectsType
   | msg.UsersTransformListType;
 
-// Outgoing!
-// export type PositionTransformType = [MsgType.MY_TRANSFORM, posbus.MyTransform]
-// export type UserActionType = [MsgType.USER_ACTION, Record<string, unknown>];  // TODO
-
-export type PostbusMessage = msg.ObjectPositionType | msg.GenericMessageType;
 
 export interface PosbusEvent extends MessageEvent {
   data: IncomingMessage;
@@ -31,7 +26,7 @@ export interface PosbusEvent extends MessageEvent {
 
 export interface PosbusPort extends MessagePort {
   onmessage: ((this: MessagePort, ev: PosbusEvent) => any) | null;
-  postMessage: (message: PostbusMessage) => void;
+  postMessage: (message: msg.PosbusMessage) => void;
 }
 
 

@@ -237,14 +237,21 @@ func generateChannelTypes(ctx context.Context) error {
 	)
 	check_error(err)
 
+	var unionType = "export type PosbusMessage ="
 	for _, msgId := range posbus.GetMessageIds() {
 		msgName := posbus.MessageNameById(msgId)
 		typeName := posbus.MessageTypeNameById(msgId)
+		t := typeName + "Type"
 		_, err = fmt.Fprintf(
-			w2, "export type %sType = [MsgType.%s, posbus.%s];\n", typeName, strings.ToUpper(msgName), typeName,
+			w2, "export type %s = [MsgType.%s, posbus.%s];\n", t, strings.ToUpper(msgName), typeName,
 		)
 		check_error(err)
+		unionType += fmt.Sprintf("\n  | %s", t)
 	}
+
+	unionType += ";\n"
+	_, err = fmt.Fprintf(w2, "\n\n%s\n", unionType)
+	check_error(err)
 	w2.Flush()
 
 	return nil
