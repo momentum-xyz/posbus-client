@@ -1,8 +1,7 @@
 {
-    "extends": "./tsconfig-base",
-    "include": ["build/**/*.ts", "build/**/*.d.ts"],
-    "compilerOptions" : {
-        "rootDir": "./build",
-        "outDir": "./build/dist"
-    }
+  "extends": "./tsconfig-base",
+  "include": ["build/**/*.ts", "build/**/*.d.ts"],
+  "compilerOptions": {
+    "outDir": "./dist"
+  }
 }

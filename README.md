@@ -12,6 +12,7 @@ Currently there is a client for Go and Javascript (in browser).
 
 For now the packages are only hosted on Github npm package repository.
 To use this you need to [authenticate](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-to-github-packages).
+Read the Github documentation, create PAT and:
 
 ```shell
 npm login --scope=@momentum-xyz --auth-type=legacy --registry=https://npm.pkg.github.com
@@ -93,6 +94,20 @@ Generated directories:
 - _build_: Output of (intermediate) build files
 - _dist_: Output of files to distribute
 - _node_modules_: NPM depedencies
+
+
+### Releasing
+
+Git tags following [semver](https://semver.org/) are used and handled on CI/CD.
+
+Example: publish a prerelase version on Github packages:
+
+```
+npm version prerelease
+git push --tags
+```
+
+Should work if your local git is setup to properly all sign commits and push tags by default.
 
 ### How it works
 
