@@ -29,7 +29,7 @@ build/wasm_exec.js:
 run: bin_pbc
 	./bin/pbc
 
-run-example: bin/build_js build/pbc.wasm build/wasm_exec.js
+run-example: bin_build_js build/pbc.wasm build/wasm_exec.js
 	mkdir -p dist/
 	cp example/* dist/
 	bin/build_js -s -p $(EXAMPLE_PORT)

@@ -14,7 +14,7 @@
     "rootDir": "..",
     "baseUrl": ".",
     "paths": {
-        "@momentum-xyz/posbus-client": ["../dist/"]
+        "@momentum-xyz/posbus-client": ["../dist/ts"]
     }
   }
 }
