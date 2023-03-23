@@ -5,7 +5,8 @@ go 1.20
 require (
 	github.com/evanw/esbuild v0.17.12
 	github.com/gzuidhof/tygo v0.2.5
-	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230323100221-74454c1db23e
+	github.com/ikkerens/ikeapack v1.5.1
+	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230323191105-c2f7a910a1e5
 	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.24.0
 	nhooyr.io/websocket v1.8.7
@@ -15,6 +16,7 @@ require (
 	github.com/c0mm4nd/go-ripemd v0.0.0-20200326052756-bd1759ad7d10 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/gobeam/stringy v0.0.6 // indirect
+	github.com/goccy/go-reflect v1.2.0 // indirect
 	github.com/gofrs/uuid/v5 v5.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
