@@ -19,7 +19,10 @@
       </div>
       <div>
         <button id="connect">Connect</button>
-        <button id="disconnect">Disconnect</button>
+        <button id="disconnect" disabled="true">Disconnect</button>
+      </div>
+      <div>
+          <textarea id="output" rows="42" cols="69"></textarea>
       </div>
     </div>
     <script type="importmap">
@@ -43,9 +46,11 @@
           client = await loadClientWorker();
         }
         port = await client.connect(`${backendUrl}/posbus`, token, id);
-        port.onmessage = (msg) => {
-          console.debug(msg.data);
+        port.onmessage = (ev) => {
+          const [msgType, data] = ev.data;
+          outputArea.value += `${msgType}: ${JSON.stringify(data)}\n`;
         };
+        globalThis.pbPort = port; // Expose globally, just for this example, so you can play around with it in the console.
       }
       async function teleport(worldId) {
         await client.teleport(worldId);
@@ -66,23 +71,29 @@
         await client.disconnect();
       }
 
-      // Below are the UI bits
+      // Below are the UI bits, ignore, not considered part of example ;)
       const backendInput = document.getElementById("backend");
       const worldInput = document.getElementById("world");
+      const connectBtn = document.getElementById("connect");
+      const disconnectBtn = document.getElementById("disconnect");
+      const outputArea = document.getElementById("output");
       document.getElementById("connect").onclick = async (e) => {
-        try {
-          await connect(backendInput.value);
-          console.log("Connected");
-          await teleport(worldInput.value);
-          console.log("Teleported to ", worldInput.value);
-          await new Promise((r) => setTimeout(r, 2000));
-          await sendPosition();
-        } catch (error) {
-          console.error(error);
-        }
+        e.target.disabled = true;
+        e.target.innerText = "Connecting...";
+        await connect(backendInput.value);
+        e.target.innerText = "Connected";
+        disconnectBtn.disabled = false;
+        console.log("Connected");
+        await teleport(worldInput.value);
+        console.log("Teleported to ", worldInput.value);
       };
       document.getElementById("disconnect").onclick = async (e) => {
+        e.target.disabled = true;
+        e.target.innerText = "Disconnecting...";
         await disconnect();
+        e.target.innerText = "Disconnect";
+        connectBtn.disabled = false;
+        connectBtn.innerText = "Connect";
         console.log("Disconnected");
       };
     </script>
