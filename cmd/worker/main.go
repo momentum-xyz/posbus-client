@@ -165,7 +165,7 @@ func onMessage(msg posbus.Message) error {
 			logger.L().Error("to map", err)
 			return
 		}
-		typeName := posbus.MessageNameById(msg.Type())
+		typeName := posbus.MessageNameById(msg.GetType())
 		logger.L().Debugf("Incoming message: %+v %+v\n", typeName, r)
 		if msgPort.IsUndefined() {
 			logger.L().Error("No port to post message to")

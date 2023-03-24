@@ -182,7 +182,7 @@ func (c *Client) processMessage(buf []byte) error {
 		return errors.WithMessagef(err, "PBC: read pump: failed to decode message")
 	}
 
-	if msg.Type() == posbus.TypeSetWorld {
+	if msg.GetType() == posbus.TypeSetWorld {
 		c.currentTarget = msg.(*posbus.SetWorld).ID
 	}
 
@@ -191,7 +191,7 @@ func (c *Client) processMessage(buf []byte) error {
 }
 
 func (c *Client) defaultCallback(data posbus.Message) error {
-	msgName := posbus.MessageNameById(data.Type())
+	msgName := posbus.MessageNameById(data.GetType())
 	c.log.Infof("PSB: got a message of type: %+v , data: %+v\n", msgName, data)
 	return nil
 }
