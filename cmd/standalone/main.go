@@ -47,6 +47,10 @@ func main() {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error %+v\n", err)
+	}
+
 	var u dto.User
 	err = json.Unmarshal(body, &u)
 	if err != nil {
