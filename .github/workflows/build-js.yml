@@ -54,7 +54,10 @@ jobs:
           scope: "@momentum-xyz"
       - id: npm-deps
         name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+      - id: build
+        name: Build javascript client
+        run: make js
       - id: publish
         name: Publish NPM package
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
