@@ -89,8 +89,8 @@ func onMessage(msg posbus.Message) error {
 	err := utils.MapDecode(msg, &r)
 	//r, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println(err, posbus.MessageNameById(msg.Type()))
+		fmt.Println(err, posbus.MessageNameById(msg.GetType()))
 	}
-	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.Type()), r)
+	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.GetType()), r)
 	return nil
 }
