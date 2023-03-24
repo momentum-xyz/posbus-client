@@ -64,12 +64,13 @@ The output of `npm start` should be an URL to see the example webpage.
 
 Building is done with Go and [esbuild](https://esbuild.github.io/) for the typescript files.
 
-As is common with Go projects, the build scripts use `make`, see [Makefile](./Makefile) for all the commands.
+As is common with Go projects, the build scripts use `make`, run `make help` for all the commands or see [Makefile](./Makefile).
 
 As is common with Node projects, the build scripts are in [package.json](./package.json).
 
 To be able to integrate the javascript building with building Go parts the esbuild configuration in written in Go, see [build_js](./cmd/build_js/main.go).
 Esbuild doesn't output typescript definition files, so `tsc` is used for that and tsconfig.json is setup to only output the declarations (since the rest is handled by esbuild).
+
 
 ### Running
 
@@ -94,6 +95,18 @@ Generated directories:
 - _build_: Output of (intermediate) build files
 - _dist_: Output of files to distribute
 - _node_modules_: NPM depedencies
+
+
+
+### Typescript/javascript
+
+When developing the typescript parts, to make your editor happy, you need the generated files (in the build directory).
+An `npm install` will call the prepare run script that calls the build to get you started. To pick up changes, run `make js` when needed.
+
+
+### Go
+
+The go client depends on the controller, to keep that up to date (to 'pull' in the latest changes) run `GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop`
 
 
 ### Releasing
