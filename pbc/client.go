@@ -88,9 +88,8 @@ func (c *Client) SetURL(url string) error {
 	return nil
 }
 
-func (c *Client) SetCallback(f func(msg posbus.Message) error) error {
+func (c *Client) SetCallback(f func(msg posbus.Message) error) {
 	c.callback = f
-	return nil
 }
 
 func (c *Client) startIOPumps(ctx context.Context) {
