@@ -1,5 +1,5 @@
 EXAMPLE_PORT:=0
-OUT_DIRS=build dist bin
+OUT_DIRS=build dist bin test-results
 
 default: help
 
@@ -25,12 +25,15 @@ go_cli: ## Build the golang CLI client.
 go_wasm_exec:
 	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" ./build/
 
-run_example: bin_build_js go_wasm_exec
+run_example: bin_build_js go_wasm_exec  ## Run example server
 	cp example/* dist/
 	bin/build_js -s -p $(EXAMPLE_PORT)
 
 pbupdate:
 	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop && go mod vendor
+
+test: ## Run tests
+	go test -v -outputdir test-results -coverpkg ./pbc/... -coverprofile coverage.out ./...
 
 clean:  ## Clean all generated build artifacts.
 	rm -rf $(OUT_DIRS)
@@ -38,7 +41,7 @@ clean:  ## Clean all generated build artifacts.
 help: ## This help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":[^:]*?## "}; {printf "\033[38;5;69m%-30s\033[38;5;38m %s\033[0m\n", $$1, $$2}'
 
-.PHONY: default all js build_ts run_build_js bin_build_js wasm go_cli go_wasm_exec run_example pbupdate clean help
+.PHONY: default all js build_ts run_build_js bin_build_js wasm go_cli go_wasm_exec run_example pbupdate test clean help
 
 # 'precreate' out output directories after parsing above makefile:
 $(shell mkdir -p $(OUT_DIRS))
