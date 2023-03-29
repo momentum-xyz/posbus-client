@@ -3,6 +3,7 @@ package fixtures
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/url"
 	"testing"
 
@@ -19,8 +20,8 @@ func Controller(t *testing.T, pgConfig config.Postgres, mmURL *url.URL) (*url.UR
 	// TODO: move this to controller repo
 
 	ctx, cancel := context.WithCancel(context.Background())
-	host := "127.0.0.42"
-	port := uint(4242) // TODO: get a random, open, port
+	host := "localhost"
+	port := getAvailablePort()
 	cfg := &config.Config{
 		Postgres: pgConfig,
 	}
@@ -62,4 +63,20 @@ func Controller(t *testing.T, pgConfig config.Postgres, mmURL *url.URL) (*url.UR
 		Scheme: "http",
 		Host:   fmt.Sprintf("%s:%d", host, port),
 	}, node
+}
+
+func getAvailablePort() uint {
+	// TODO: allow controller to run with ':0' and make it return the port number.
+	//For now, this racy hack:
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		panic(err)
+	}
+
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		panic(err)
+	}
+	defer l.Close()
+	return uint(l.Addr().(*net.TCPAddr).Port)
 }
