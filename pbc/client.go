@@ -71,7 +71,9 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	//}
 	c.startIOPumps(ctx)
 	c.Send(posbus.BinMessage(&c.hs))
-	c.callback(&posbus.Signal{Value: posbus.SignalConnected})
+	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnected}); err != nil {
+		c.log.Errorf("client callback: %s", err)
+	}
 	if reconnect {
 		c.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: c.currentTarget}))
 	}
@@ -140,7 +142,9 @@ func (c *Client) readPump(ctx context.Context) {
 		}
 	}
 	c.conn.Close(websocket.StatusNormalClosure, "")
-	c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed})
+	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed}); err != nil {
+		c.log.Errorf("client callback: %s", err)
+	}
 	c.log.Infof("PBC: end of read pump")
 	if ctx.Err() == nil {
 		// Only try reconnecting if it was not cancelled by us
@@ -185,7 +189,9 @@ func (c *Client) processMessage(buf []byte) error {
 		c.currentTarget = msg.(*posbus.SetWorld).ID
 	}
 
-	c.callback(msg)
+	if err := c.callback(msg); err != nil {
+		c.log.Errorf("client callback: %s", err)
+	}
 	return nil
 }
 
