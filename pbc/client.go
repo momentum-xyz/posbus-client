@@ -51,8 +51,7 @@ func (c *Client) Connect(ctx context.Context, url, token string, userId umid.UMI
 	c.hs.SessionId = umid.New()
 	c.hs.HandshakeVersion = 1
 	c.hs.ProtocolVersion = 1
-	c.doConnect(ctx, false)
-	return nil
+	return c.doConnect(ctx, false)
 }
 func (c *Client) Send(msg []byte) {
 	c.send <- msg
