@@ -7,7 +7,7 @@ require (
 	github.com/gzuidhof/tygo v0.2.5
 	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/k-yomo/fixtory/v2 v2.0.0
-	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230329121646-a4e461b23dad
+	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230330134612-55142a29eb79
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.2
 	github.com/testcontainers/testcontainers-go v0.19.0
@@ -107,7 +107,7 @@ require (
 	github.com/ymz-ncnk/persistor v0.1.1 // indirect
 	github.com/zakaria-chahboun/cute v1.2.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/mod v0.9.0 // indirect
