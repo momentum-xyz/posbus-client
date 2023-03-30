@@ -19,9 +19,9 @@ async function main(): Promise<void> {
         break;
       }
       case MsgType.MY_TRANSFORM: {
-          const { location, rotation } = data;
+          const { position, rotation } = data;
           console.log(
-            `My user ${userId} ⊹${fmtVec3(location)} ∡${fmtVec3(rotation)}`
+            `My user ${userId} ⊹${fmtVec3(position)} ∡${fmtVec3(rotation)}`
           );
         break;
       }
@@ -29,10 +29,10 @@ async function main(): Promise<void> {
         for (const uTransform of data.value) {
           const {
             id: userId,
-            transform: { location, rotation },
+            transform: { position, rotation },
           } = uTransform;
           console.log(
-            `User ${userId} ⊹${fmtVec3(location)} ∡${fmtVec3(rotation)}`
+            `User ${userId} ⊹${fmtVec3(position)} ∡${fmtVec3(rotation)}`
           );
         }
         break;

@@ -71,7 +71,7 @@ func main() {
 		),
 	)
 	time.Sleep(time.Second)
-	t := &cmath.UserTransform{}
+	t := &cmath.TransformNoScale{}
 	client.Send(posbus.BinMessage((*posbus.MyTransform)(t)))
 
 	/* example reconnect:
