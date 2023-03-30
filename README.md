@@ -94,8 +94,8 @@ Generated directories:
 
 - _build_: Output of (intermediate) build files
 - _dist_: Output of files to distribute
-- _node_modules_: NPM depedencies
-- _test-results_: Ouput from test runs
+- _node_modules_: NPM dependencies
+- _test-results_: Output from test runs
 
 ### Typescript/javascript
 
@@ -118,7 +118,7 @@ make test
 
 Git tags following [semver](https://semver.org/) are used and handled on CI/CD.
 
-Example: publish a prerelase version on Github packages:
+Example: publish a prerelease version on Github packages:
 
 ```
 npm version prerelease
