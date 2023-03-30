@@ -63,14 +63,12 @@ export interface Vec3 {
   y: number;
   z: number;
 }
-export interface ObjectTransform {
+export interface Transform {
   location: Vec3;
   rotation: Vec3;
-  scale: Vec3;
 }
-export interface UserTransform {
-  location: Vec3;
-  rotation: Vec3;
+export interface ObjectTransform extends Transform {
+  scale: Vec3;
 }
 
 export type SlotType = "" | "texture" | "string" | "number";
@@ -182,7 +180,7 @@ func generateTypes(ctx context.Context) error {
 					"umid.UMID":             "string",
 					"dto.Asset3dType":       "string",
 					"cmath.ObjectTransform": "ObjectTransform",
-					"cmath.UserTransform":   "UserTransform",
+					"cmath.UserTransform":   "Transform",
 					"cmath.Float32Bytes":    "4",
 					"entry.UnitySlotType":   "SlotType",
 				},

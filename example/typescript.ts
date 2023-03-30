@@ -19,10 +19,7 @@ async function main(): Promise<void> {
         break;
       }
       case MsgType.MY_TRANSFORM: {
-          const {
-            id: userId,
-            transform: { location, rotation },
-          } = data;
+          const { location, rotation } = data;
           console.log(
             `My user ${userId} ⊹${fmtVec3(location)} ∡${fmtVec3(rotation)}`
           );
