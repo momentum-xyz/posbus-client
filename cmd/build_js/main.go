@@ -63,11 +63,11 @@ export interface Vec3 {
   y: number;
   z: number;
 }
-export interface Transform {
-  location: Vec3;
+export interface TransformNoScale {
+  position: Vec3;
   rotation: Vec3;
 }
-export interface ObjectTransform extends Transform {
+export interface Transform extends TransformNoScale {
   scale: Vec3;
 }
 
@@ -177,12 +177,12 @@ func generateTypes(ctx context.Context) error {
 				//IncludeFiles: []string{"types.autogen.go"},
 				Frontmatter: extraTypes,
 				TypeMappings: map[string]string{
-					"umid.UMID":             "string",
-					"dto.Asset3dType":       "string",
-					"cmath.ObjectTransform": "ObjectTransform",
-					"cmath.UserTransform":   "Transform",
-					"cmath.Float32Bytes":    "4",
-					"entry.UnitySlotType":   "SlotType",
+					"umid.UMID":              "string",
+					"dto.Asset3dType":        "string",
+					"cmath.Transform":        "Transform",
+					"cmath.TransformNoScale": "TransformNoScale",
+					"cmath.Float32Bytes":     "4",
+					"entry.UnitySlotType":    "SlotType",
 				},
 				ExcludeFiles: []string{
 					"message.go",

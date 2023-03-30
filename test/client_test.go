@@ -87,6 +87,10 @@ func (s *ClientTestSuite) TestClient() {
 	// channel to read back messages for testing
 	ch := make(chan any, 1)
 	s.T().Cleanup(func() {
+		client.SetCallback(func(msg posbus.Message) error {
+			return nil
+		})
+		client.Close()
 		close(ch)
 	})
 	client.SetCallback(func(msg posbus.Message) error {
@@ -158,7 +162,7 @@ func (s *ClientTestSuite) TestClient() {
 		obj := w.Value[0]
 		require.Equal(s.guestId, obj.ID, "It is I! Le guest")
 	})
-	//assert.Equal("foo", "bar")
+	//assert.Equal(s.T(), "foo", "bar")
 }
 
 func assertNextMsg[T any](t *testing.T, ch <-chan any, expectedType T, f func(msg T)) {
@@ -170,7 +174,7 @@ func assertNextMsg[T any](t *testing.T, ch <-chan any, expectedType T, f func(ms
 			x, _ := msg.(T)
 			f(x)
 		} else {
-			t.FailNow()
+			t.FailNow() // Means assert.IsType failed.
 		}
 	case <-time.After(msg1Timeout):
 		t.Fatalf("not received a message within %s seconds", msg1Timeout)
