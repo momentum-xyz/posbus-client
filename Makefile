@@ -25,7 +25,7 @@ go_cli: ## Build the golang CLI client.
 go_wasm_exec:
 	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" ./build/
 
-run_example: bin_build_js go_wasm_exec  ## Run example server
+run_example: bin_build_js wasm go_wasm_exec  ## Run example server
 	cp example/* dist/
 	bin/build_js -s -p $(EXAMPLE_PORT)
 
