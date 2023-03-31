@@ -31,11 +31,15 @@ type ClientTestSuite struct {
 	pgContainer testcontainers.Container
 	pgConfig    config.Postgres
 	ctURL       *url.URL
-	node        universe.Node
-	guestId     umid.UMID
-	guestToken  string
-	world       universe.World
-	Client      *pbc.Client
+
+	world  universe.World
+	node   universe.Node
+	object universe.Object
+
+	guestId    umid.UMID
+	guestToken string
+
+	Client *pbc.Client
 }
 
 func TestClientTestSuite(t *testing.T) {
@@ -66,6 +70,8 @@ func (s *ClientTestSuite) SetupSuite() {
 	creator := userFactory.NewBuilder(fixtures.UserBlueprint, entry.User{Profile: entry.UserProfile{Name: &creatorName}}).Build()
 
 	s.world = fixtures.World(s.T(), s.node, creator, "Gaia")
+
+	s.object = fixtures.Object(s.T(), s.node, s.world, "Thing")
 }
 
 func (s *ClientTestSuite) SetupTest() {
@@ -145,6 +151,15 @@ func (s *ClientTestSuite) TestClient() {
 		obj := w.Objects[0]
 		require.Equal(s.world.GetID(), obj.ID, "It is the world itself")
 		require.Equal(s.node.GetID(), obj.ParentID, "node as its parent")
+	})
+
+	// Send the object definition of children of the world.
+	assertNextMsg(s.T(), ch, &posbus.AddObjects{}, func(w *posbus.AddObjects) {
+		require.Len(w.Objects, 1, "Get one object")
+		obj := w.Objects[0]
+		require.Equal(s.object.GetID(), obj.ID, "It is the object")
+		require.Equal(s.world.GetID(), obj.ParentID, "world as its parent")
+		require.Equal(cmath.Vec3{X: 53.2194, Y: 6.5665, Z: 18}, obj.Transform.Position, "position of object")
 	})
 
 	// Add users to this world.
