@@ -12,10 +12,12 @@
       "module": "./dist/index.mjs",
       "types": "./dist/ts/index.d.ts"
     },
-    "./worker": {
+    "./worker/": {
       "module": "./dist/worker.mjs",
       "types": "./dist/ts/worker.d.ts"
-    }
+    },
+    "./worker.mjs": "./dist/worker.mjs",
+    "./pbc.wasm": "./dist/pbc.wasm"
   },
   "files": [
     "dist/",
