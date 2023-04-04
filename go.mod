@@ -3,7 +3,7 @@ module github.com/momentum-xyz/posbus-client
 go 1.20
 
 require (
-	github.com/evanw/esbuild v0.17.14
+	github.com/evanw/esbuild v0.17.15
 	github.com/gzuidhof/tygo v0.2.5
 	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/k-yomo/fixtory/v2 v2.0.0
