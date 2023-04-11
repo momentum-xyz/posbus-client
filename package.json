@@ -28,7 +28,7 @@
     "build:types": "tsc --build -v tsconfig.json",
     "prepare": "make js",
     "lint": "eslint --ext .js,.ts .",
-    "prestart": "make clean build/pbc.wasm build/wasm_exec.js",
+    "prestart": "make clean js",
     "start": "mkdir -p dist/ && cp example/* dist/ && go run ./cmd/build_js -s",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
