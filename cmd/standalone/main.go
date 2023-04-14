@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -63,8 +64,10 @@ func main() {
 	defer cancelConnection()
 	client := pbc.NewClient()
 	client.SetCallback(onMessage)
+	log.Printf("Connecting to %s as %s\n", URL, u.Name)
 	client.Connect(connectionCtx, URL, *u.JWTToken, umid.MustParse(u.ID))
 
+	log.Printf("Teleporting %v to %s\n", u.Name, world)
 	client.Send(
 		posbus.BinMessage(
 			&posbus.TeleportRequest{Target: world},
@@ -95,6 +98,30 @@ func onMessage(msg posbus.Message) error {
 	if err != nil {
 		fmt.Println(err, posbus.MessageNameById(msg.GetType()))
 	}
-	fmt.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.GetType()), r)
+	log.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.GetType()), r)
+	switch m := msg.(type) {
+	case *posbus.Signal:
+		return onSignal(m)
+	}
+	return nil
+}
+
+func onSignal(sig *posbus.Signal) error {
+	switch sig.Value {
+	case posbus.SignalNone:
+		return errors.New("none signal received")
+	case posbus.SignalWorldDoesNotExist:
+		return errors.New("world does not exist signal received")
+	case posbus.SignalDualConnection:
+		return errors.New("dual connection signal received")
+	case posbus.SignalConnected:
+		log.Println("connected signal")
+		return nil
+	case posbus.SignalConnectionClosed:
+		log.Println("connecting closed signal")
+		return nil
+	default:
+		log.Printf("Unhandled signal %d\n", sig.Value)
+	}
 	return nil
 }
