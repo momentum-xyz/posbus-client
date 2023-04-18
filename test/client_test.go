@@ -141,7 +141,7 @@ func (s *ClientTestSuite) TestClient() {
 	})
 	// Then position the current user in the world.
 	assertNextMsg(s.T(), ch, &posbus.MyTransform{}, func(w *posbus.MyTransform) {
-		expectedPosition := cmath.Vec3{X: 50, Y: 50, Z: 150}
+		expectedPosition := cmath.Vec3{X: 0, Y: 0, Z: 0} // TODO: add world spawnpoint to template (and implement that)
 		require.Equal(expectedPosition, w.Position, "Initial user position")
 	})
 
