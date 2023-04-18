@@ -3,7 +3,8 @@ module github.com/momentum-xyz/posbus-client
 go 1.20
 
 require (
-	github.com/evanw/esbuild v0.17.16
+	github.com/evanw/esbuild v0.17.17
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gzuidhof/tygo v0.2.5
 	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/k-yomo/fixtory/v2 v2.0.0
@@ -51,7 +52,6 @@ require (
 	github.com/goccy/go-reflect v1.2.0 // indirect
 	github.com/gofrs/uuid/v5 v5.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang-migrate/migrate/v4 v4.15.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
