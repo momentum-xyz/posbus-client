@@ -19,7 +19,7 @@ const (
 	// send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
 	// Maximum message size allowed from peer.
-	inMessageSizeLimit = 1024
+	inMessageSizeLimit = 32768 // TODO: determine a sane value of in-browser user and impl batching in backend
 	// maximal size of buffer in messages, after which we drop connection as not-working
 	maxBufferSize = 10000
 	// Negative Number to indicate closed chan, large enough to be less than any number of outstanding
