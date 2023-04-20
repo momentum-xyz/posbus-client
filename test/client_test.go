@@ -36,7 +36,7 @@ type ClientTestSuite struct {
 	node   universe.Node
 	object universe.Object
 
-	guestId    umid.UMID
+	guestId    *umid.UMID
 	guestToken string
 
 	Client *pbc.Client
@@ -75,7 +75,11 @@ func (s *ClientTestSuite) SetupSuite() {
 }
 
 func (s *ClientTestSuite) SetupTest() {
-	s.guestId, s.guestToken = fixtures.GuestAccount(s.T(), s.ctURL)
+	guestId, guestToken, err := fixtures.GuestAccount(s.ctURL)
+	if err != nil {
+		panic(err)
+	}
+	s.guestId, s.guestToken = guestId, guestToken
 	require.NotEmpty(s.T(), s.guestId)
 	require.NotEmpty(s.T(), s.guestToken)
 
@@ -106,7 +110,7 @@ func (s *ClientTestSuite) TestClient() {
 
 	url := s.ctURL.JoinPath("posbus").String()
 
-	err := client.Connect(ctx, url, s.guestToken, s.guestId)
+	err := client.Connect(ctx, url, s.guestToken, *s.guestId)
 	if err != nil {
 		s.T().Fatalf("connection: %s", err)
 	}
@@ -166,16 +170,14 @@ func (s *ClientTestSuite) TestClient() {
 	assertNextMsg(s.T(), ch, &posbus.AddUsers{}, func(w *posbus.AddUsers) {
 		require.Len(w.Users, 1, "Get one users")
 		obj := w.Users[0]
-		require.Equal(s.guestId, obj.ID, "It is I! Le guest")
+		require.Equal(*s.guestId, obj.ID, "It is I! Le guest")
 	})
 
 	// And now things become non-deterministic.
-	// Currently we get spammed with tranforms... of ourself
-	// which is kindof a bug I would say...
 	assertNextMsg(s.T(), ch, &posbus.UsersTransformList{}, func(w *posbus.UsersTransformList) {
 		require.Len(w.Value, 1, "Get one tranform")
 		obj := w.Value[0]
-		require.Equal(s.guestId, obj.ID, "It is I! Le guest")
+		require.Equal(*s.guestId, obj.ID, "It is I! Le guest")
 	})
 	//assert.Equal(s.T(), "foo", "bar")
 }

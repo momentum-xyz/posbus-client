@@ -12,24 +12,27 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/momentum-xyz/posbus-client/pbc"
-	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
+	"github.com/momentum-xyz/posbus-client/test/scenarios"
+	"github.com/momentum-xyz/ubercontroller/logger"
 	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/api/dto"
 	"github.com/momentum-xyz/ubercontroller/utils"
 	"github.com/momentum-xyz/ubercontroller/utils/umid"
+	"go.uber.org/zap/zapcore"
 )
-
-var URL = "http://localhost:4000/posbus"
 
 func main() {
 	backendArg := flag.String("backend", "http://localhost:4000", "The URL to the controller backend")
 	worldArg := flag.String("world", "975cb9ca-4dfa-4d35-adc2-198ed1f12555", "UUID of a world")
 	token := flag.String("token", "", "An authentication token")
+	nrFlyers := flag.Uint64("nrFlyers", 0, "Number of fake users to create that fly around randomly")
+	logLevel := flag.String("log", "warn", "Log level (warn, info, debug")
 	flag.Parse()
 	backend, err := url.Parse(*backendArg)
 	if err != nil {
@@ -39,6 +42,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Invalid world %s", err)
 	}
+
+	l, err := zapcore.ParseLevel(*logLevel)
+	if err != nil {
+		log.Fatalf("Invalid log level %s", err)
+	}
+	logger.SetLevel(l)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -58,12 +67,12 @@ func main() {
 
 	//fmt.Printf("%+v\n", u)
 
-	connectionCtx, cancelConnection := context.WithCancel(ctx)
-	defer cancelConnection()
+	// 'viewer' for the ouput
 	client := pbc.NewClient()
 	client.SetCallback(onMessage)
-	log.Printf("Connecting to %s as %s\n", URL, user.Name)
-	client.Connect(connectionCtx, URL, *user.JWTToken, umid.MustParse(user.ID))
+	pbURL := backend.JoinPath("posbus").String()
+	log.Printf("Connecting to %s as %s\n", pbURL, user.Name)
+	client.Connect(ctx, pbURL, *user.JWTToken, umid.MustParse(user.ID))
 
 	log.Printf("Teleporting %v to %s\n", user.Name, world)
 	client.Send(
@@ -71,9 +80,24 @@ func main() {
 			&posbus.TeleportRequest{Target: world},
 		),
 	)
-	time.Sleep(time.Second)
-	t := &cmath.TransformNoScale{}
-	client.Send(posbus.BinMessage((*posbus.MyTransform)(t)))
+
+	// Run some fake users.
+	// "poor man's" load test, just for some quick local testing :)
+	// TODO: Use a proper testing framework, to not reinvent the wheel here.
+	var wg sync.WaitGroup
+	const rampUp = 420 * time.Millisecond
+	log.Printf("Starting %d flyers...", *nrFlyers)
+	for i := uint64(0); i < *nrFlyers; i++ {
+		if ctx.Err() == nil {
+			wg.Add(1)
+			go func(i uint64) {
+				defer wg.Done()
+				scenarios.GuestFlyer(ctx, i, backend, &world)
+			}(i)
+			time.Sleep(rampUp)
+		}
+	}
+	log.Println("done!")
 
 	/* example reconnect:
 	time.Sleep(time.Second * 3)
@@ -96,10 +120,12 @@ func onMessage(msg posbus.Message) error {
 	if err != nil {
 		fmt.Println(err, posbus.MessageNameById(msg.GetType()))
 	}
-	log.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.GetType()), r)
+	//log.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.GetType()), r)
 	switch m := msg.(type) {
 	case *posbus.Signal:
 		return onSignal(m)
+	case *posbus.UsersTransformList:
+		//fmt.Printf("User transform for %d users\n", len(m.Value))
 	}
 	return nil
 }
@@ -116,7 +142,7 @@ func onSignal(sig *posbus.Signal) error {
 		log.Println("connected signal")
 		return nil
 	case posbus.SignalConnectionClosed:
-		log.Println("connecting closed signal")
+		log.Println("connection closed signal")
 		return nil
 	default:
 		log.Printf("Unhandled signal %d\n", sig.Value)
@@ -148,10 +174,10 @@ func guestUser(backend *url.URL) (*dto.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("guest token: %w", err)
 	}
-	var u dto.User
-	err = json.Unmarshal(body, &u)
+	u := &dto.User{}
+	err = json.Unmarshal(body, u)
 	if err != nil {
 		return nil, fmt.Errorf("guest token: %w", err)
 	}
-	return &u, nil
+	return u, nil
 }

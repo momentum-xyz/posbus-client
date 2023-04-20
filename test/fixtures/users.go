@@ -2,9 +2,9 @@ package fixtures
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/url"
-	"testing"
 
 	"github.com/hashicorp/go-retryablehttp"
 
@@ -17,33 +17,33 @@ import (
 // Create a guest account in the backend through the API.
 // Returns the guest user ID and authentication token (JWT).
 // For use in integration tests.
-func GuestAccount(t *testing.T, ctURL *url.URL) (umid.UMID, string) {
+func GuestAccount(ctURL *url.URL) (*umid.UMID, string, error) {
 	url := ctURL.JoinPath("/api/v4/auth/guest-token").String()
 	// retryable is current workaround for slow starting controller service
 	resp, err := retryablehttp.Post(url, "", nil)
 	if err != nil {
-		t.Fatalf("Error getting guest token %+v\n", err)
+		return nil, "", fmt.Errorf("Error getting guest token: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		body, _ := io.ReadAll(resp.Body)
-		t.Fatalf("guest token: %s %s\n%s", url, resp.Status, string(body))
+		return nil, "", fmt.Errorf("guest token: %s %s\n%s", url, resp.Status, string(body))
 	}
 
 	var u dto.User
 	d := json.NewDecoder(resp.Body)
 	err = d.Decode(&u)
 	if err != nil {
-		t.Fatalf("Error %+v\n", err)
+		return nil, "", fmt.Errorf("Error decoding guest user %w", err)
 	}
 
 	userID, err := umid.Parse(u.ID)
 	if err != nil {
-		t.Fatalf("Error %+v\n", err)
+		return nil, "", fmt.Errorf("Error parsing user id: %w", err)
 	}
 	token := *u.JWTToken
 
-	return userID, token
+	return &userID, token, nil
 }
 
 // fixtory blueprint for users
