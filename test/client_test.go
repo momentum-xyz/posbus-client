@@ -173,11 +173,20 @@ func (s *ClientTestSuite) TestClient() {
 		require.Equal(*s.guestId, obj.ID, "It is I! Le guest")
 	})
 
-	// And now things become non-deterministic.
+	// And now things become non-deterministic...(?)
 	assertNextMsg(s.T(), ch, &posbus.UsersTransformList{}, func(w *posbus.UsersTransformList) {
 		require.Len(w.Value, 1, "Get one tranform")
 		obj := w.Value[0]
 		require.Equal(*s.guestId, obj.ID, "It is I! Le guest")
+	})
+
+	fixtures.ChangePosbusAutoAttribute(s.T(), s.node, s.world, s.guestId)
+	assertNextMsg(s.T(), ch, &posbus.AttributeValueChanged{}, func(w *posbus.AttributeValueChanged) {
+		require.Equal("attribute_changed", w.ChangeType)
+		require.Equal("voice-chat-action", w.Topic)
+		require.Equal("VoiceChatAction", w.Data.AttributeName)
+		require.Equal(posbus.StringAnyMap{"foo": map[string]any{"bar": "baz"}}, *w.Data.Value)
+
 	})
 	//assert.Equal(s.T(), "foo", "bar")
 }

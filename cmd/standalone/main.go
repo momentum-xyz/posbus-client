@@ -126,6 +126,8 @@ func onMessage(msg posbus.Message) error {
 		return onSignal(m)
 	case *posbus.UsersTransformList:
 		//fmt.Printf("User transform for %d users\n", len(m.Value))
+	case *posbus.AttributeValueChanged:
+		fmt.Printf("Attribute value changed: %+v", m)
 	}
 	return nil
 }
