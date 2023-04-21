@@ -136,7 +136,7 @@ func (c *Client) readPump(ctx context.Context) {
 			c.log.Errorf("PBC: read pump: wrong incoming message type: %d", messageType)
 		} else {
 			if err := c.processMessage(message); err != nil {
-				c.log.Warn(errors.WithMessagef(err, "PBC: read pump: failed to handle message %+v", message))
+				c.log.Warn(errors.WithMessage(err, "PBC: read pump: failed to handle message"))
 			}
 		}
 	}
@@ -181,7 +181,12 @@ func (c *Client) writePump(ctx context.Context) {
 func (c *Client) processMessage(buf []byte) error {
 	msg, err := posbus.Decode(buf)
 	if err != nil {
-		return errors.WithMessagef(err, "PBC: read pump: failed to decode message")
+		l := len(buf)
+		head := 8
+		if l < head {
+			head = l
+		}
+		return errors.WithMessagef(err, "PBC: read pump: failed to decode message, head=%#v (total len=%d)", buf[:head], l)
 	}
 
 	if msg.GetType() == posbus.TypeSetWorld {
