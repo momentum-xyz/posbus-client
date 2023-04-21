@@ -8,7 +8,7 @@ require (
 	github.com/gzuidhof/tygo v0.2.5
 	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/k-yomo/fixtory/v2 v2.0.0
-	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230421092234-9325a403bb2a
+	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230421161348-f65edc76a837
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.2
 	github.com/testcontainers/testcontainers-go v0.19.0
