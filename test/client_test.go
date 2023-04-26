@@ -32,9 +32,10 @@ type ClientTestSuite struct {
 	pgConfig    config.Postgres
 	ctURL       *url.URL
 
-	world  universe.World
-	node   universe.Node
-	object universe.Object
+	world     universe.World
+	node      universe.Node
+	object    universe.Object
+	otherUser universe.User
 
 	guestId    *umid.UMID
 	guestToken string
@@ -72,6 +73,9 @@ func (s *ClientTestSuite) SetupSuite() {
 	s.world = fixtures.World(s.T(), s.node, creator, "Gaia")
 
 	s.object = fixtures.Object(s.T(), s.node, s.world, "Thing")
+
+	s.otherUser = fixtures.GetFakeUser()
+	s.world.AddUser(s.otherUser, false)
 }
 
 func (s *ClientTestSuite) SetupTest() {
@@ -166,18 +170,36 @@ func (s *ClientTestSuite) TestClient() {
 		require.Equal(cmath.Vec3{X: 53.2194, Y: 6.5665, Z: 18}, obj.Transform.Position, "position of object")
 	})
 
-	// Add users to this world.
+	// Add users to this world, first themself
 	assertNextMsg(s.T(), ch, &posbus.AddUsers{}, func(w *posbus.AddUsers) {
-		require.Len(w.Users, 1, "Get one users")
-		obj := w.Users[0]
-		require.Equal(*s.guestId, obj.ID, "It is I! Le guest")
+		require.ElementsMatch(
+			[]umid.UMID{*s.guestId},
+			idMapper(w.Users, func(u posbus.UserData) umid.UMID {
+				return u.ID
+			}),
+			"It is I! Le guest",
+		)
+	})
+	// Add users to this world, the others
+	assertNextMsg(s.T(), ch, &posbus.AddUsers{}, func(w *posbus.AddUsers) {
+		require.ElementsMatch(
+			[]umid.UMID{s.otherUser.GetID()},
+			idMapper(w.Users, func(u posbus.UserData) umid.UMID {
+				return u.ID
+			}),
+			"Add other user",
+		)
 	})
 
 	// And now things become non-deterministic...(?)
 	assertNextMsg(s.T(), ch, &posbus.UsersTransformList{}, func(w *posbus.UsersTransformList) {
-		require.Len(w.Value, 1, "Get one tranform")
-		obj := w.Value[0]
-		require.Equal(*s.guestId, obj.ID, "It is I! Le guest")
+		require.ElementsMatch(
+			[]umid.UMID{*s.guestId, s.otherUser.GetID()},
+			idMapper(w.Value, func(ut posbus.UserTransform) umid.UMID {
+				return ut.ID
+			}),
+			"Transform for themself and other user",
+		)
 	})
 
 	fixtures.ChangePosbusAutoAttribute(s.T(), s.node, s.world, s.guestId)
@@ -219,4 +241,12 @@ func (tc *TestLogConsumer) Accept(l testcontainers.Log) {
 // Return the last logged lines.
 func (s *TestLogConsumer) LastLines(lines uint) string {
 	return strings.Join(s.Msgs[:lines], "\n")
+}
+
+func idMapper[T any](tl []T, f func(T) umid.UMID) []umid.UMID {
+	ids := make([]umid.UMID, len(tl))
+	for i := range tl {
+		ids[i] = f(tl[i])
+	}
+	return ids
 }

@@ -6,9 +6,14 @@ import (
 	"io"
 	"net/url"
 
+	"github.com/gorilla/websocket"
 	"github.com/hashicorp/go-retryablehttp"
+	influxWrite "github.com/influxdata/influxdb-client-go/v2/api/write"
 
+	"github.com/momentum-xyz/ubercontroller/pkg/cmath"
+	"github.com/momentum-xyz/ubercontroller/pkg/posbus"
 	"github.com/momentum-xyz/ubercontroller/types/entry"
+	"github.com/momentum-xyz/ubercontroller/universe"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/api/dto"
 	"github.com/momentum-xyz/ubercontroller/universe/logic/common"
 	"github.com/momentum-xyz/ubercontroller/utils/umid"
@@ -58,4 +63,68 @@ func getNormalUserTypeID() umid.UMID {
 		panic(err)
 	}
 	return typeId
+}
+
+func GetFakeUser() universe.User {
+	return &FakeUser{
+		id: umid.New(),
+	}
+}
+
+// Fake user for test fixtures.
+// Minimal implementation of universe.User interface
+// TODO: move to 'fakes' package(?)
+type FakeUser struct {
+	universe.User
+	id   umid.UMID
+	w    universe.World
+	t    cmath.TransformNoScale
+	lspt int64
+}
+
+func (m *FakeUser) GetID() umid.UMID {
+	return m.id
+}
+
+func (m *FakeUser) SetWorld(w universe.World) {
+	m.w = w
+}
+func (m *FakeUser) GetWorld() universe.World {
+	return m.w
+}
+
+func (m *FakeUser) SetObject(o universe.Object) {}
+func (m *FakeUser) SetTransform(t cmath.TransformNoScale) {
+	m.t = t
+}
+func (m *FakeUser) GetTransform() *cmath.TransformNoScale {
+	return &m.t
+}
+func (m *FakeUser) GetLastPosTime() int64 {
+	return m.GetLastSendPosTime()
+}
+func (m *FakeUser) GetLastSendPosTime() int64 {
+	return m.lspt
+}
+func (m *FakeUser) SetLastSendPosTime(i int64) {
+	m.lspt = i
+}
+func (m *FakeUser) ReleaseSendBuffer() {}
+func (m *FakeUser) LockSendBuffer()    {}
+
+func (m *FakeUser) Send(message *websocket.PreparedMessage) error {
+	return nil
+}
+func (m *FakeUser) SendDirectly(message *websocket.PreparedMessage) error {
+	return nil
+}
+
+func (m *FakeUser) AddInfluxTags(
+	prefix string, point *influxWrite.Point) *influxWrite.Point {
+	return nil
+}
+func (m *FakeUser) GetUserDefinition() *posbus.UserData {
+	return &posbus.UserData{
+		ID: m.id,
+	}
 }

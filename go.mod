@@ -5,8 +5,10 @@ go 1.20
 require (
 	github.com/evanw/esbuild v0.17.18
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/gorilla/websocket v1.5.0
 	github.com/gzuidhof/tygo v0.2.5
 	github.com/hashicorp/go-retryablehttp v0.7.2
+	github.com/influxdata/influxdb-client-go/v2 v2.12.2
 	github.com/k-yomo/fixtory/v2 v2.0.0
 	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230426093137-a903ce205bf5
 	github.com/pkg/errors v0.9.1
@@ -56,13 +58,11 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/influxdata/influxdb-client-go/v2 v2.12.2 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20210922203350-b1ad95c89adf // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.0 // indirect
