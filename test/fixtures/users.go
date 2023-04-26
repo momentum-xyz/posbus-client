@@ -37,13 +37,9 @@ func GuestAccount(ctURL *url.URL) (*umid.UMID, string, error) {
 		return nil, "", fmt.Errorf("Error decoding guest user %w", err)
 	}
 
-	userID, err := umid.Parse(u.ID)
-	if err != nil {
-		return nil, "", fmt.Errorf("Error parsing user id: %w", err)
-	}
 	token := *u.JWTToken
 
-	return &userID, token, nil
+	return &u.ID, token, nil
 }
 
 // fixtory blueprint for users

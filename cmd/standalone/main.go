@@ -72,7 +72,7 @@ func main() {
 	client.SetCallback(onMessage)
 	pbURL := backend.JoinPath("posbus").String()
 	log.Printf("Connecting to %s as %s\n", pbURL, user.Name)
-	client.Connect(ctx, pbURL, *user.JWTToken, umid.MustParse(user.ID))
+	client.Connect(ctx, pbURL, *user.JWTToken, user.ID)
 
 	log.Printf("Teleporting %v to %s\n", user.Name, world)
 	client.Send(
@@ -158,8 +158,12 @@ func userFromToken(tokenString string) (*dto.User, error) {
 		return []byte(""), nil
 	})
 	claims := token.Claims.(*jwt.StandardClaims)
+	userId, err := umid.Parse(claims.Subject)
+	if err != nil {
+		return nil, fmt.Errorf("jwt subject: %s", err)
+	}
 	return &dto.User{ // TODO: get with API call?
-		ID:       claims.Subject,
+		ID:       userId,
 		JWTToken: &tokenString,
 		Name:     claims.Subject,
 	}, nil
