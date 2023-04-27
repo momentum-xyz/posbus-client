@@ -210,6 +210,14 @@ func (s *ClientTestSuite) TestClient() {
 		require.Equal(posbus.StringAnyMap{"foo": map[string]any{"bar": "baz"}}, *w.Data.Value)
 
 	})
+
+	fixtures.ChangeRenderAutoAttribute(s.T(), s.node, s.world)
+	assertNextMsg(s.T(), ch, &posbus.ObjectData{}, func(w *posbus.ObjectData) {
+		require.Equal(s.world.GetID(), w.ID)
+		require.Equal(map[entry.SlotType]*posbus.StringAnyMap{
+			"texture": {"skybox_custom": "renderhashrenderhashrenderhashre"}},
+			w.Entries)
+	})
 	//assert.Equal(s.T(), "foo", "bar")
 }
 

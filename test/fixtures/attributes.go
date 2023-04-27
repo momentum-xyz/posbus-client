@@ -25,3 +25,23 @@ func ChangePosbusAutoAttribute(t *testing.T, node universe.Node, world universe.
 		t.Fatalf("update object user attribute %v", err)
 	}
 }
+
+func ChangeRenderAutoAttribute(t *testing.T, node universe.Node, world universe.World) {
+	pluginID := universe.GetSystemPluginID()
+	attributeID := entry.NewAttributeID(pluginID, "active_skybox")
+
+	_, err := world.GetObjectAttributes().Upsert(
+		attributeID,
+		func(current *entry.AttributePayload) (*entry.AttributePayload, error) {
+			value := map[string]any{"render_hash": "renderhashrenderhashrenderhashre"}
+			v := entry.AttributeValue(value)
+			return entry.NewAttributePayload(&v, nil), nil
+
+		},
+		false,
+	)
+	if err != nil {
+		t.Fatalf("update object attribute %v", err)
+	}
+
+}
