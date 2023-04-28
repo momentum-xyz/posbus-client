@@ -54,6 +54,14 @@
       "options": null,
       "plugin_id": "f0f0f0f0-0f0f-4ff0-af0f-f0f0f0f0f0f0",
       "attribute_name": "world_meta"
+    },
+    {
+      "plugin_id": "f0f0f0f0-0f0f-4ff0-af0f-f0f0f0f0f0f0",
+      "attribute_name": "active_skybox",
+      "options": null,
+      "value": {
+          "render_hash": "dummyskybox"
+      }
     }
   ]
 }

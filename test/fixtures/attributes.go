@@ -43,5 +43,4 @@ func ChangeRenderAutoAttribute(t *testing.T, node universe.Node, world universe.
 	if err != nil {
 		t.Fatalf("update object attribute %v", err)
 	}
-
 }

@@ -170,6 +170,16 @@ func (s *ClientTestSuite) TestClient() {
 		require.Equal(cmath.Vec3{X: 53.2194, Y: 6.5665, Z: 18}, obj.Transform.Position, "position of object")
 	})
 
+	// Send the object attributes.
+	assertNextMsg(s.T(), ch, &posbus.ObjectData{}, func(w *posbus.ObjectData) {
+		require.Equal(s.world.GetID(), w.ID, "Data for the world")
+		require.Equal(map[entry.SlotType]*posbus.StringAnyMap{
+			"texture": {
+				"skybox_custom": "dummyskybox",
+				"name":          "b159e71057b4e6679dd04f13a890a6b1"}},
+			w.Entries)
+	})
+
 	// Add users to this world, first themself
 	assertNextMsg(s.T(), ch, &posbus.AddUsers{}, func(w *posbus.AddUsers) {
 		require.ElementsMatch(

@@ -1009,6 +1009,8 @@ github.com/modern-go/reflect2 v1.0.2 h1:xBagoLtFs94CBntxluKeaWgTMpvLxC4ur3nMaC9G
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230426093137-a903ce205bf5 h1:N/AjZC6OOEDB2ruPMdzFqg9I0NIf7IeDuLYd22cWFLE=
 github.com/momentum-xyz/ubercontroller v0.1.3-0.20230426093137-a903ce205bf5/go.mod h1:juIrXUeydDAAgThE0ssEhnTL/oUs8BXJaNhj1sCDGPg=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230428082947-24167631a7b4 h1:lCeweoXZAZIuowFIDmx2e99ZqL0LaBlJ12DyZgQgIwY=
+github.com/momentum-xyz/ubercontroller v0.1.3-0.20230428082947-24167631a7b4/go.mod h1:juIrXUeydDAAgThE0ssEhnTL/oUs8BXJaNhj1sCDGPg=
 github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe/go.mod h1:wL8QJuTMNUDYhXwkmfOly8iTdp5TEcJFWZD2D7SIkUc=
 github.com/morikuni/aec v1.0.0 h1:nP9CBfwrvYnBRgY6qfDQkygYDmYwOilePFkwzv4dU8A=
 github.com/morikuni/aec v1.0.0/go.mod h1:BbKIizmSmc5MMPqRYbxO4ZU0S0+P200+tUnFx7PXmsc=
