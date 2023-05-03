@@ -168,7 +168,7 @@ func (c *Client) readPump(ctx context.Context, connectionCancel context.CancelFu
 func (c *Client) writePump(ctx context.Context, cf context.CancelFunc) {
 	c.log.Infof("PBC: start of write pump")
 
-	ticker := time.NewTicker(pingPeriod)
+	//ticker := time.NewTicker(pingPeriod)
 	for {
 		select {
 		case <-ctx.Done():
@@ -177,16 +177,16 @@ func (c *Client) writePump(ctx context.Context, cf context.CancelFunc) {
 		case message := <-c.send:
 			c.log.Debugln("Write pump message")
 			if message == nil {
-				return
+				c.log.Debugln("write nil msg, ignoreing")
 			}
 
-			if c.conn.Write(ctx, websocket.MessageBinary, message) != nil {
-				return
+			if err := c.conn.Write(ctx, websocket.MessageBinary, message); err != nil {
+				c.log.Debugf("write error: %v", err)
 			}
 
-		case <-ticker.C:
+			//case <-ticker.C:
 			//if c.conn.Ping(ctx) != nil {
-			return
+			//return
 			//}
 		}
 	}
