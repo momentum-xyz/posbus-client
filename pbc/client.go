@@ -34,6 +34,8 @@ type Client struct {
 	hs            posbus.HandShake
 	currentTarget umid.UMID
 	callback      func(data posbus.Message) error
+	ctx           context.Context
+	cancelConn    context.CancelFunc
 }
 
 func NewClient() *Client {
@@ -51,7 +53,10 @@ func (c *Client) Connect(ctx context.Context, url, token string, userId umid.UMI
 	c.hs.SessionId = umid.New()
 	c.hs.HandshakeVersion = 1
 	c.hs.ProtocolVersion = 1
-	return c.doConnect(ctx, false)
+	c.ctx = ctx
+	connCtx, connCancel := context.WithCancel(ctx)
+	c.cancelConn = connCancel
+	return c.doConnect(connCtx, false)
 }
 func (c *Client) Send(msg []byte) {
 	c.send <- msg
@@ -62,13 +67,16 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	c.log.Infof("PBC: connecting (re:%v)... ", reconnect)
 	for ok := true; ok; ok = err != nil {
 		c.conn, _, err = websocket.Dial(ctx, c.url, nil)
+		if err != nil {
+			c.log.Infof("websocker dail: %v", err)
+		}
 		time.Sleep(time.Second)
 	}
 	//if err != nil {
 	//c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionFailed})
 	//	return err
 	//}
-	c.startIOPumps(ctx)
+	c.startIOPumps(ctx, c.cancelConn)
 	c.Send(posbus.BinMessage(&c.hs))
 	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnected}); err != nil {
 		c.log.Errorf("client callback: %s", err)
@@ -93,9 +101,9 @@ func (c *Client) SetCallback(f func(msg posbus.Message) error) {
 	c.callback = f
 }
 
-func (c *Client) startIOPumps(ctx context.Context) {
-	go c.readPump(ctx)
-	go c.writePump(ctx)
+func (c *Client) startIOPumps(ctx context.Context, cf context.CancelFunc) {
+	go c.readPump(ctx, cf)
+	go c.writePump(ctx, cf)
 }
 
 func (c *Client) Close() error {
@@ -103,12 +111,13 @@ func (c *Client) Close() error {
 	return c.conn.Close(websocket.StatusNormalClosure, "")
 }
 
-func (c *Client) readPump(ctx context.Context) {
+func (c *Client) readPump(ctx context.Context, connectionCancel context.CancelFunc) {
 	c.log.Infof("PBC: start of read pump")
 
 	c.conn.SetReadLimit(inMessageSizeLimit)
 	//c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	//c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	closeReason := ""
 	for {
 		messageType, message, err := c.conn.Read(ctx)
 		if err != nil {
@@ -120,15 +129,18 @@ func (c *Client) readPump(ctx context.Context) {
 					c.log.Info(
 						errors.WithMessagef(err, "PBC: read pump: websocket closed by server"),
 					)
+					closeReason = "server"
 				}
 			} else if errors.Is(err, context.Canceled) {
 				c.log.Info(
 					errors.WithMessagef(err, "PBC: read pump: cancelled by client"),
 				)
+				closeReason = "user"
 			} else {
 				c.log.Debug(
 					errors.WithMessagef(err, "PBC: read pump: failed to read message from connection"),
 				)
+				closeReason = "client"
 			}
 			break
 		}
@@ -140,18 +152,20 @@ func (c *Client) readPump(ctx context.Context) {
 			}
 		}
 	}
-	c.conn.Close(websocket.StatusNormalClosure, "")
+	c.conn.Close(websocket.StatusNormalClosure, closeReason)
 	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed}); err != nil {
 		c.log.Errorf("client callback: %s", err)
 	}
 	c.log.Infof("PBC: end of read pump")
-	if ctx.Err() == nil {
-		// Only try reconnecting if it was not cancelled by us
-		go c.doConnect(ctx, true)
+	if ctx.Err() == nil { // Only try reconnecting if it was not cancelled by us
+		connectionCancel()                               //stops the read/write goroutines for (previous) connection
+		connCtx, connCancel := context.WithCancel(c.ctx) // from original client context
+		c.cancelConn = connCancel
+		go c.doConnect(connCtx, true)
 	}
 }
 
-func (c *Client) writePump(ctx context.Context) {
+func (c *Client) writePump(ctx context.Context, cf context.CancelFunc) {
 	c.log.Infof("PBC: start of write pump")
 
 	ticker := time.NewTicker(pingPeriod)
@@ -171,9 +185,9 @@ func (c *Client) writePump(ctx context.Context) {
 			}
 
 		case <-ticker.C:
-			if c.conn.Ping(ctx) != nil {
-				return
-			}
+			//if c.conn.Ping(ctx) != nil {
+			return
+			//}
 		}
 	}
 }
