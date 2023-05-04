@@ -130,7 +130,11 @@ func Send(this js.Value, args []js.Value) interface{} {
 		return nil
 	}
 
-	client.Send(posbus.BinMessage(msg))
+	err = client.Send(posbus.BinMessage(msg))
+	if err != nil {
+		logger.L().Debugf("PB Send: %v\n", err)
+		return nil
+	}
 
 	return nil
 }

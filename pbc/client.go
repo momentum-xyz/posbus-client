@@ -2,6 +2,7 @@ package pbc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/momentum-xyz/ubercontroller/logger"
@@ -41,7 +42,7 @@ type Client struct {
 func NewClient() *Client {
 	c := &Client{}
 	c.log = logger.L()
-	c.send = make(chan []byte)
+	//c.send = make(chan []byte)
 	c.callback = c.defaultCallback
 	return c
 }
@@ -58,8 +59,15 @@ func (c *Client) Connect(ctx context.Context, url, token string, userId umid.UMI
 	c.cancelConn = connCancel
 	return c.doConnect(connCtx, false)
 }
-func (c *Client) Send(msg []byte) {
+
+func (c *Client) Send(msg []byte) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("send: %v", r)
+		}
+	}()
 	c.send <- msg
+	return
 }
 
 func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
@@ -76,6 +84,7 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	//c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionFailed})
 	//	return err
 	//}
+	c.send = make(chan []byte)
 	c.startIOPumps(ctx, c.cancelConn)
 	c.Send(posbus.BinMessage(&c.hs))
 	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnected}); err != nil {
@@ -158,7 +167,9 @@ func (c *Client) readPump(ctx context.Context, connectionCancel context.CancelFu
 	}
 	c.log.Infof("PBC: end of read pump")
 	if ctx.Err() == nil { // Only try reconnecting if it was not cancelled by us
-		connectionCancel()                               //stops the read/write goroutines for (previous) connection
+		connectionCancel() //stops the read/write goroutines for (previous) connection
+		close(c.send)
+		c.send = make(chan []byte)
 		connCtx, connCancel := context.WithCancel(c.ctx) // from original client context
 		c.cancelConn = connCancel
 		go c.doConnect(connCtx, true)
