@@ -176,7 +176,8 @@ func (s *ClientTestSuite) TestClient() {
 		require.Equal(map[entry.SlotType]*posbus.StringAnyMap{
 			"texture": {
 				"skybox_custom": "dummyskybox",
-				"name":          "b159e71057b4e6679dd04f13a890a6b1"}},
+				"name":          "b159e71057b4e6679dd04f13a890a6b1",
+			}},
 			w.Entries)
 	})
 

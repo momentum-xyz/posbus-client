@@ -3,6 +3,7 @@ package fixtures
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	_ "embed"
 
@@ -32,5 +33,6 @@ func World(t *testing.T, node universe.Node, creator *entry.User, name string) u
 	if !ok {
 		t.Fatalf("create world: %s", err)
 	}
+	time.Sleep(500 * time.Millisecond) // hack! give controller goroutines a chance to run
 	return world
 }
