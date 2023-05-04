@@ -2,7 +2,6 @@ package pbc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/momentum-xyz/ubercontroller/logger"
@@ -31,18 +30,17 @@ type Client struct {
 	conn          *websocket.Conn
 	log           *zap.SugaredLogger
 	url           string
-	send          chan []byte
 	hs            posbus.HandShake
 	currentTarget umid.UMID
 	callback      func(data posbus.Message) error
-	ctx           context.Context
+	clientCtx     context.Context
+	connectionCtx context.Context
 	cancelConn    context.CancelFunc
 }
 
 func NewClient() *Client {
 	c := &Client{}
 	c.log = logger.L()
-	//c.send = make(chan []byte)
 	c.callback = c.defaultCallback
 	return c
 }
@@ -54,19 +52,16 @@ func (c *Client) Connect(ctx context.Context, url, token string, userId umid.UMI
 	c.hs.SessionId = umid.New()
 	c.hs.HandshakeVersion = 1
 	c.hs.ProtocolVersion = 1
-	c.ctx = ctx
-	connCtx, connCancel := context.WithCancel(ctx)
-	c.cancelConn = connCancel
-	return c.doConnect(connCtx, false)
+	c.clientCtx = ctx
+	c.connectionCtx, c.cancelConn = context.WithCancel(ctx)
+	return c.doConnect(c.connectionCtx, false)
 }
 
 func (c *Client) Send(msg []byte) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("send: %v", r)
-		}
-	}()
-	c.send <- msg
+	//c.send <- msg
+	if err := c.conn.Write(c.connectionCtx, websocket.MessageBinary, msg); err != nil {
+		c.log.Debugf("write error: %v", err)
+	}
 	return
 }
 
@@ -74,17 +69,18 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	var err error
 	c.log.Infof("PBC: connecting (re:%v)... ", reconnect)
 	for ok := true; ok; ok = err != nil {
-		c.conn, _, err = websocket.Dial(ctx, c.url, nil)
+		conn, _, err := websocket.Dial(ctx, c.url, nil)
 		if err != nil {
 			c.log.Infof("websocker dail: %v", err)
+			time.Sleep(time.Second)
+		} else {
+			c.conn = conn
 		}
-		time.Sleep(time.Second)
 	}
 	//if err != nil {
 	//c.callback(posbus.TypeSignal, posbus.Signal{Value: posbus.SignalConnectionFailed})
 	//	return err
 	//}
-	c.send = make(chan []byte)
 	c.startIOPumps(ctx, c.cancelConn)
 	c.Send(posbus.BinMessage(&c.hs))
 	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnected}); err != nil {
@@ -112,7 +108,7 @@ func (c *Client) SetCallback(f func(msg posbus.Message) error) {
 
 func (c *Client) startIOPumps(ctx context.Context, cf context.CancelFunc) {
 	go c.readPump(ctx, cf)
-	go c.writePump(ctx, cf)
+	//go c.writePump(ctx, cf)
 }
 
 func (c *Client) Close() error {
@@ -167,39 +163,9 @@ func (c *Client) readPump(ctx context.Context, connectionCancel context.CancelFu
 	}
 	c.log.Infof("PBC: end of read pump")
 	if ctx.Err() == nil { // Only try reconnecting if it was not cancelled by us
-		connectionCancel() //stops the read/write goroutines for (previous) connection
-		close(c.send)
-		c.send = make(chan []byte)
-		connCtx, connCancel := context.WithCancel(c.ctx) // from original client context
-		c.cancelConn = connCancel
-		go c.doConnect(connCtx, true)
-	}
-}
-
-func (c *Client) writePump(ctx context.Context, cf context.CancelFunc) {
-	c.log.Infof("PBC: start of write pump")
-
-	//ticker := time.NewTicker(pingPeriod)
-	for {
-		select {
-		case <-ctx.Done():
-			c.log.Infof("Write pump cancelled")
-			return
-		case message := <-c.send:
-			c.log.Debugln("Write pump message")
-			if message == nil {
-				c.log.Debugln("write nil msg, ignoreing")
-			}
-
-			if err := c.conn.Write(ctx, websocket.MessageBinary, message); err != nil {
-				c.log.Debugf("write error: %v", err)
-			}
-
-			//case <-ticker.C:
-			//if c.conn.Ping(ctx) != nil {
-			//return
-			//}
-		}
+		connectionCancel()                                              //stops the read/write goroutines for (previous) connection
+		c.connectionCtx, c.cancelConn = context.WithCancel(c.clientCtx) // from original client context
+		go c.doConnect(c.connectionCtx, true)
 	}
 }
 
