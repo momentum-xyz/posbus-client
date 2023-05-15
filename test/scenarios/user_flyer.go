@@ -17,12 +17,15 @@ import (
 )
 
 // Flying speed, in 'units' per second. Based on 3d engine values
-const SPEED_CRUISE = float64(64)
-const SPEED_BOOST = float64(128)
+const SPEED_CRUISE = float64(8)
+const SPEED_BOOST = float64(16)
+
+// Interval clients send their position.
+const POS_UPDATE_TIME = 250 * time.Millisecond
 
 // Space constrains, randomly move inside this cube
-const MIN = -500
-const MAX = 500
+const MIN = -100
+const MAX = 100
 
 // Test scenario of a guest user flying around in a world.
 func GuestFlyer(ctx context.Context, i uint64, backend *url.URL, world *umid.UMID) error {
@@ -46,16 +49,15 @@ func GuestFlyer(ctx context.Context, i uint64, backend *url.URL, world *umid.UMI
 		),
 	)
 
-	step := 500 * time.Millisecond
-	ticker := time.NewTicker(step)
 	log.Printf("Guest flyer %d running", i)
+	ticker := time.NewTicker(POS_UPDATE_TIME)
 	for {
 		select {
 		case <-ctx.Done():
 			ticker.Stop()
 			return nil
 		case <-ticker.C:
-			us.moveUser(step)
+			us.moveUser(POS_UPDATE_TIME)
 		}
 	}
 }
