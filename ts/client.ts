@@ -38,6 +38,9 @@ export const loadClientWorker = async (
   wasmUrl?: URL
 ): Promise<Client> => {
   const worker = new Worker(url, { type: "module", name: "PBC" });
+  worker.addEventListener('error', (ev) => {
+    console.error("PBC worker", ev.message);
+  });
   await workerCall(worker, { type: PostMessageType.WORKER_LOAD, wasmUrl: wasmUrl?.toString() });
   return new Client(worker);
 };
