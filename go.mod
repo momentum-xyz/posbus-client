@@ -12,7 +12,7 @@ require (
 	github.com/k-yomo/fixtory/v2 v2.0.0
 	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230428130843-63115f9de992
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/testcontainers/testcontainers-go v0.20.1
 	go.uber.org/zap v1.24.0
 	nhooyr.io/websocket v1.8.7
