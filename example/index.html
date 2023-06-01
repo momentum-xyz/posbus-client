@@ -14,11 +14,12 @@
         </label>
         <label
           >World
-          <input id="world" value="ed8273d0-57f6-4a99-832d-57866b975ff9" />
+          <input id="world" value="00000000-0000-8000-8000-000000000002" />
         </label>
       </div>
       <div>
         <button id="connect">Connect</button>
+        <button id="teleport" disabled=true>Teleport</button>
         <button id="disconnect" disabled="true">Disconnect</button>
       </div>
       <div>
@@ -75,6 +76,7 @@
       const backendInput = document.getElementById("backend");
       const worldInput = document.getElementById("world");
       const connectBtn = document.getElementById("connect");
+      const teleportBtn = document.getElementById("teleport");
       const disconnectBtn = document.getElementById("disconnect");
       const outputArea = document.getElementById("output");
       document.getElementById("connect").onclick = async (e) => {
@@ -83,6 +85,7 @@
         await connect(backendInput.value);
         e.target.innerText = "Connected";
         disconnectBtn.disabled = false;
+        teleportBtn.disabled = false;
         console.log("Connected");
         await teleport(worldInput.value);
         console.log("Teleported to ", worldInput.value);
@@ -94,7 +97,11 @@
         e.target.innerText = "Disconnect";
         connectBtn.disabled = false;
         connectBtn.innerText = "Connect";
+        teleportBtn.disabled = false;
         console.log("Disconnected");
+      };
+      document.getElementById("teleport").onclick = async (e) => {
+        await teleport(worldInput.value);
       };
     </script>
   </body>
