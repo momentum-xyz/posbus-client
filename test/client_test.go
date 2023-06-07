@@ -216,9 +216,9 @@ func (s *ClientTestSuite) TestClient() {
 	fixtures.ChangePosbusAutoAttribute(s.T(), s.node, s.world, s.guestId)
 	assertNextMsg(s.T(), ch, &posbus.AttributeValueChanged{}, func(w *posbus.AttributeValueChanged) {
 		require.Equal("attribute_changed", w.ChangeType)
-		require.Equal("voice-chat-action", w.Topic)
-		require.Equal("VoiceChatAction", w.Data.AttributeName)
-		require.Equal(posbus.StringAnyMap{"foo": map[string]any{"bar": "baz"}}, *w.Data.Value)
+		require.Equal(universe.GetSystemPluginID(), w.PluginID)
+		require.Equal("VoiceChatAction", w.AttributeName)
+		require.Equal(posbus.StringAnyMap{"foo": map[string]any{"bar": "baz"}}, *w.Value)
 
 	})
 
