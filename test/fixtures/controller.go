@@ -34,14 +34,15 @@ func Controller(t *testing.T, pgConfig config.Postgres, mmURL *url.URL) (*url.UR
 	if err != nil {
 		t.Fatalf("zap logger: %s", err)
 	}
-	// TODO: refacor context bits to use proper setter&getter
-	ctx = context.WithValue(ctx, types.LoggerContextKey, logger.Sugar())
-	ctx = context.WithValue(ctx, types.ConfigContextKey, cfg)
-	pool, err := service.CreateDBConnection(ctx, &cfg.Postgres)
+	nodeCtx, err := types.NewNodeContext(ctx, logger.Sugar(), cfg)
+	if err != nil {
+		t.Fatalf("failed to create context: %s", err)
+	}
+	pool, err := service.CreateDBConnection(nodeCtx, &cfg.Postgres)
 	if err != nil {
 		t.Fatalf("database connection: %s", err)
 	}
-	node, err := service.LoadNode(ctx, cfg, pool)
+	node, err := service.LoadNode(nodeCtx, cfg, pool)
 	if err != nil {
 		t.Fatalf("load node: %s", err)
 	}
