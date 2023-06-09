@@ -1,6 +1,6 @@
 import "websocket-polyfill";
-import { PBClient } from "@momentum-xyz/posbus-client";
-// import { PBClient } from "../../dist/index.mjs";
+// import { PBClient } from "@momentum-xyz/posbus-client";
+import { PBClient } from "../../dist/index.mjs";
 import fs from "fs";
 
 const [userId, token] = process.argv.slice(2);
@@ -15,7 +15,7 @@ const buffer = fs.readFileSync(
   "../../dist/pbc.wasm"
 );
 
-async function main(userId: string, token: string) {
+async function main(userId, token) {
   try {
     const client = new PBClient((event) => {
       console.log(`PosBus message [${userId}]:`, event.data);
@@ -36,7 +36,7 @@ async function main(userId: string, token: string) {
   }
 }
 
-function sleep(ms: number) {
+function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
