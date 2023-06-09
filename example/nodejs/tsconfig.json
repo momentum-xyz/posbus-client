@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node-lts-strictest-esm/tsconfig.json",
-  "include": ["*.ts", "../dist/ts/*.ts"],
+  "include": ["*.ts", "../../dist/ts/*.ts"],
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -9,12 +9,15 @@
     "emitDeclarationOnly": true,
     "checkJs": false,
     "isolatedModules": true,
-    "lib": ["DOM", "ESNext"],
     "outDir": "dist",
-    "rootDir": "..",
+    "rootDir": "../..",
     "baseUrl": ".",
     "paths": {
-        "@momentum-xyz/posbus-client": ["../dist/ts"]
+      "@momentum-xyz/posbus-client": ["../../dist/ts"]
     }
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   }
 }
