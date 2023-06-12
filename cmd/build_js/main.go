@@ -67,8 +67,6 @@ var buildOptionsNode = api.BuildOptions{
 	// MinifySyntax:      true,
 	// Target: api.ES5,
 	Engines: []api.Engine{
-		{Name: api.EngineNode, Version: "16"},
-		{Name: api.EngineNode, Version: "18"},
 		{Name: api.EngineNode, Version: "20"},
 	},
 	Write: true,
