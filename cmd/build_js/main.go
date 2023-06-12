@@ -61,17 +61,10 @@ var buildOptionsNode = api.BuildOptions{
 	Loader: map[string]api.Loader{
 		".wasm": api.LoaderFile,
 	},
-	// External:          []string{"pbc.wasm"},
-	// MinifyWhitespace:  true,
-	// MinifyIdentifiers: true,
-	// MinifySyntax:      true,
-	// Target: api.ES5,
 	Engines: []api.Engine{
 		{Name: api.EngineNode, Version: "20"},
 	},
 	Write: true,
-	// Metafile:  true,
-	// Sourcemap: api.SourceMapLinked,
 }
 
 var serveOptions = api.ServeOptions{
