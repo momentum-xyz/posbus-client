@@ -72,15 +72,14 @@ type scenario struct {
 	rnd      *rand.Rand
 }
 
-func (s *scenario) onMessage(msg posbus.Message) error {
+func (s *scenario) onMessage(msg posbus.Message) {
 	switch m := msg.(type) {
 	case *posbus.MyTransform:
 		s.position = m.Position
 		s.rotation = m.Rotation
 		s.moving = true
-		return nil
 	default:
-		return nil
+		return
 	}
 }
 

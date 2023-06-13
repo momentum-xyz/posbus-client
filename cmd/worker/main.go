@@ -161,7 +161,7 @@ func msgGoToJs(data any) (map[string]any, error) {
 	return r, nil
 }
 
-func onMessage(msg posbus.Message) error {
+func onMessage(msg posbus.Message) {
 	// workaround: process in goroutine to avoid locking event thread
 	go func() {
 		r, err := msgGoToJs_json(msg)
@@ -177,8 +177,6 @@ func onMessage(msg posbus.Message) error {
 		}
 		msgPort.Call("postMessage", []any{typeName, r})
 	}()
-
-	return nil
 }
 
 func SetPort(this js.Value, args []js.Value) any {
