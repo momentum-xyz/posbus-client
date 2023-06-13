@@ -32,7 +32,7 @@ type Client struct {
 	url           string
 	hs            posbus.HandShake
 	currentTarget umid.UMID
-	callback      func(data posbus.Message) error
+	callback      func(data posbus.Message)
 	clientCtx     context.Context
 	connectionCtx context.Context
 	cancelConn    context.CancelFunc
@@ -83,9 +83,7 @@ func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	//}
 	c.startIOPumps(ctx, c.cancelConn)
 	c.Send(posbus.BinMessage(&c.hs))
-	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnected}); err != nil {
-		c.log.Errorf("client callback: %s", err)
-	}
+	c.callback(&posbus.Signal{Value: posbus.SignalConnected})
 	if reconnect {
 		c.Send(posbus.BinMessage(&posbus.TeleportRequest{Target: c.currentTarget}))
 	}
@@ -102,7 +100,7 @@ func (c *Client) SetURL(url string) error {
 	return nil
 }
 
-func (c *Client) SetCallback(f func(msg posbus.Message) error) {
+func (c *Client) SetCallback(f func(msg posbus.Message)) {
 	c.callback = f
 }
 
@@ -158,9 +156,7 @@ func (c *Client) readPump(ctx context.Context, connectionCancel context.CancelFu
 		}
 	}
 	c.conn.Close(websocket.StatusNormalClosure, closeReason)
-	if err := c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed}); err != nil {
-		c.log.Errorf("client callback: %s", err)
-	}
+	c.callback(&posbus.Signal{Value: posbus.SignalConnectionClosed})
 	c.log.Infof("PBC: end of read pump")
 	if ctx.Err() == nil { // Only try reconnecting if it was not cancelled by us
 		connectionCancel()                                              //stops the read/write goroutines for (previous) connection
@@ -183,15 +179,11 @@ func (c *Client) processMessage(buf []byte) error {
 	if msg.GetType() == posbus.TypeSetWorld {
 		c.currentTarget = msg.(*posbus.SetWorld).ID
 	}
-
-	if err := c.callback(msg); err != nil {
-		c.log.Errorf("client callback: %s", err)
-	}
+	c.callback(msg)
 	return nil
 }
 
-func (c *Client) defaultCallback(data posbus.Message) error {
+func (c *Client) defaultCallback(data posbus.Message) {
 	msgName := posbus.MessageNameById(data.GetType())
 	c.log.Infof("PSB: got a message of type: %+v , data: %+v\n", msgName, data)
-	return nil
 }
