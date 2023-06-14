@@ -48,6 +48,11 @@ export class PBClient {
       port1.onmessage = this.onMessageCallback;
     }
     this._getPBC().setPort(port2);
+    port2.onmessage = (ev) => {
+      const [msgType, data] = ev.data;
+      // TODO: avoid the stringify
+      PBC.send(msgType, JSON.stringify(data));
+    };
     await this._getPBC().connect(url, token, userId);
     return port1;
   }
