@@ -10,22 +10,20 @@ if (!userId || !token) {
   process.exit(1);
 }
 
-const buffer = fs.readFileSync(
-  // "./node_modules/@momentum-xyz/posbus-client/dist/pbc.wasm"
-  "../../dist/pbc.wasm"
-);
+// const wasmURL = require.resolve('@momentum-xyz/posbus-client/pbc.wasm');
+// const wasmPBC = fs.readFileSync(wasmURL);
+const wasmPBC = fs.readFileSync("../../dist/pbc.wasm");
 
 async function main(userId, token) {
   const client = new PBClient((event) => {
     console.log(`PosBus message [${userId}]:`, event.data);
   });
 
-  await client.load(buffer);
+  await client.load(wasmPBC);
 
   console.log(`PosBus client loaded [${userId}]`, client);
   await client.connect(`https://dev.odyssey.ninja/posbus`, token, userId);
   // await client.connect(`http://localhost:4000/posbus`, token, userId);
-  // await client.connect(`ws://localhost:4000/posbus`, token, userId);
 
   await sleep(500);
   console.log(`PosBus client teleport [${userId}]`);
