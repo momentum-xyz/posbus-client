@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -73,7 +72,7 @@ func main() {
 	var worldDef *posbus.SetWorld
 	var objDef *posbus.ObjectDefinition
 	wUsers := make([]posbus.UserData, 0, *nrFlyers+1)
-	client.SetCallback(func(msg posbus.Message) error {
+	client.SetCallback(func(msg posbus.Message) {
 		switch m := msg.(type) {
 		case *posbus.SetWorld:
 			worldDef = m
@@ -85,7 +84,7 @@ func main() {
 		case *posbus.AddUsers:
 			wUsers = append(wUsers, m.Users...)
 		}
-		return msgLogging(msg)
+		msgLogging(msg)
 	})
 	pbURL := backend.JoinPath("posbus").String()
 	log.Printf("Connecting to %s as %s\n", pbURL, user.Name)
@@ -153,11 +152,11 @@ func main() {
 	os.Exit(0)
 }
 
-func msgLogging(msg posbus.Message) error {
+func msgLogging(msg posbus.Message) {
 	//log.Printf("Incoming message: %+v %+v\n", posbus.MessageNameById(msg.GetType()), r)
 	switch m := msg.(type) {
 	case *posbus.Signal:
-		return onSignal(m)
+		onSignal(m)
 	case *posbus.AddObjects:
 		fmt.Printf("Add %d objects\n", len(m.Objects))
 	case *posbus.AddUsers:
@@ -171,27 +170,23 @@ func msgLogging(msg posbus.Message) error {
 	case *posbus.HighFive:
 		fmt.Printf("H5: %+v\n", m)
 	}
-	return nil
 }
 
-func onSignal(sig *posbus.Signal) error {
+func onSignal(sig *posbus.Signal) {
 	switch sig.Value {
 	case posbus.SignalNone:
-		return errors.New("none signal received")
+		log.Println("none signal received")
 	case posbus.SignalWorldDoesNotExist:
-		return errors.New("world does not exist signal received")
+		log.Println("world does not exist signal received")
 	case posbus.SignalDualConnection:
-		return errors.New("dual connection signal received")
+		log.Println("dual connection signal received")
 	case posbus.SignalConnected:
 		log.Println("connected signal")
-		return nil
 	case posbus.SignalConnectionClosed:
 		log.Println("connection closed signal")
-		return nil
 	default:
 		log.Printf("Unhandled signal %d\n", sig.Value)
 	}
-	return nil
 }
 
 func userFromToken(tokenString string) (*dto.User, error) {

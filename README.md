@@ -24,6 +24,10 @@ Install the package in your project:
 npm install @momentum-xyz/posbus-client
 ```
 
+The library can be used from browser or nodejs but in a different manner.
+
+### Browser
+
 ```typescript
 import { loadClientWorker } from "@momentum-xyz/posbus-client";
 
@@ -37,6 +41,55 @@ port.onmessage = (msg) => {
 client.teleport(worldId);
 // talk back
 port.postMessage(msgType, data);
+```
+
+### Nodejs
+
+```typescript
+import "websocket-polyfill"; // not supported natively in nodejs
+import {
+  posbus,
+  PBClient,
+  PosbusEvent,
+  PosbusPort,
+  MsgType,
+} from "@momentum-xyz/posbus-client";
+import fs from "fs";
+
+const wasmURL = require.resolve("@momentum-xyz/posbus-client/pbc.wasm");
+const wasmPBC = fs.readFileSync(wasmURL);
+
+const { BACKEND_URL = "https://dev.odyssey.ninja" } = process.env;
+const POSBUS_URL = `${BACKEND_URL}/posbus`;
+
+async function main(userId: string, token: string) {
+  // Instanciate the client
+  const client = new PBClient((event) => {
+    console.log(`PosBus message [${userId}]:`, event.data);
+    // handle incoming messages
+  });
+
+  await client.load(wasmPBC);
+
+  await client.connect(POSBUS_URL, token, userId);
+
+  // select a world
+  await client.teleport(worldId);
+
+  // send a message
+  await client.send([
+    MsgType.MY_TRANSFORM,
+    {
+      position: { x: 0, y: 0, z: 5 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+  ]);
+}
+
+// get token and userId from auth
+main(userId, token).catch((err) => {
+  console.error(err);
+});
 ```
 
 ## Development

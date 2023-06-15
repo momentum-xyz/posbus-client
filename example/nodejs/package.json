@@ -1,0 +1,16 @@
+{
+  "name": "posbus-client-node-sample",
+  "version": "0.0.1",
+  "description": "Sample of posbus-client usage in node",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "websocket-polyfill": "^0.0.3"
+  }
+}

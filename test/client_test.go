@@ -101,15 +101,14 @@ func (s *ClientTestSuite) TestClient() {
 	// channel to read back messages for testing
 	ch := make(chan any, 1)
 	s.T().Cleanup(func() {
-		client.SetCallback(func(msg posbus.Message) error {
-			return nil
+		client.SetCallback(func(msg posbus.Message) {
+			return
 		})
 		client.Close()
 		close(ch)
 	})
-	client.SetCallback(func(msg posbus.Message) error {
+	client.SetCallback(func(msg posbus.Message) {
 		ch <- msg
-		return nil
 	})
 
 	url := s.ctURL.JoinPath("posbus").String()
