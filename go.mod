@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.4
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/k-yomo/fixtory/v2 v2.0.0
-	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230613122639-b7f0a0328576
+	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230615152236-2273085a4ae2
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.20.1
@@ -151,7 +151,7 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
