@@ -1,6 +1,7 @@
 import "../build/wasm_exec";
 import wasmUrl from "../build/pbc.wasm";
 import type { PosbusEvent, PosbusPort } from "./types";
+import type { PosbusMessage } from "../build/channel_types";
 
 declare const PBC: {
   connect: (url: string, token: string, userId: string) => Promise<void>;
@@ -65,7 +66,8 @@ export class PBClient {
     this._getPBC().teleport(world);
   }
 
-  send(msgType: string, data: any) {
+  send(msg: PosbusMessage) {
+    const [msgType, data] = msg;
     this._getPBC().send(msgType, JSON.stringify(data));
   }
 

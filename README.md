@@ -77,10 +77,13 @@ async function main(userId: string, token: string) {
   await client.teleport(worldId);
 
   // send a message
-  await client.send(MsgType.MY_TRANSFORM, {
-    position: { x: 0, y: 0, z: 5 },
-    rotation: { x: 0, y: 0, z: 0 },
-  });
+  await client.send([
+    MsgType.MY_TRANSFORM,
+    {
+      position: { x: 0, y: 0, z: 5 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+  ]);
 }
 
 // get token and userId from auth

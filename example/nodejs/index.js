@@ -32,10 +32,13 @@ async function main(userId, token) {
   await sleep(3000);
 
   console.log(`PosBus client send MY_TRANSFORM [${userId}]`);
-  await client.send(MsgType.MY_TRANSFORM, {
-    position: { x: 0, y: 0, z: 5 },
-    rotation: { x: 0, y: 0, z: 0 },
-  });
+  await client.send([
+    MsgType.MY_TRANSFORM,
+    {
+      position: { x: 0, y: 0, z: 5 },
+      rotation: { x: 0, y: 0, z: 0 },
+    },
+  ]);
 }
 
 function sleep(ms) {
