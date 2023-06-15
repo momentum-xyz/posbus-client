@@ -67,7 +67,7 @@ func (c *Client) Send(msg []byte) (err error) {
 
 func (c *Client) doConnect(ctx context.Context, reconnect bool) error {
 	var err error
-	c.log.Infof("PBC: connecting (re:%v)... ", reconnect)
+	c.log.Infof("PBC: connecting to %s (re:%v)... ", c.url, reconnect)
 	for ok := true; ok; ok = err != nil {
 		conn, _, err := websocket.Dial(ctx, c.url, nil)
 		if err != nil {

@@ -48,6 +48,25 @@ var buildOptions = api.BuildOptions{
 	Sourcemap: api.SourceMapLinked,
 }
 
+var buildOptionsNode = api.BuildOptions{
+	LogLevel:    api.LogLevelInfo,
+	EntryPoints: []string{"ts/index.ts"},
+	Bundle:      true,
+	Outdir:      "dist",
+	Format:      api.FormatCommonJS,
+	OutExtension: map[string]string{
+		".js": ".cjs",
+	},
+	AssetNames: "[name]",
+	Loader: map[string]api.Loader{
+		".wasm": api.LoaderFile,
+	},
+	Engines: []api.Engine{
+		{Name: api.EngineNode, Version: "20"},
+	},
+	Write: true,
+}
+
 var serveOptions = api.ServeOptions{
 	Host:     "localhost",
 	Servedir: "dist",
@@ -129,7 +148,13 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
-		result, err := build(ctx, buildOptions)
+		result, err := build(ctx, buildOptionsNode)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%s", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{Verbose: true}))
+
+		result, err = build(ctx, buildOptions)
 		if err != nil {
 			log.Fatal(err)
 		}
