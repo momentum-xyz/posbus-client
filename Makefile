@@ -29,7 +29,7 @@ run_example: bin_build_js wasm go_wasm_exec  ## Run example server
 	cp example/* dist/
 	bin/build_js -s -p $(EXAMPLE_PORT)
 
-pbupdate:
+pbupdate:  ## Update the controller dependency (to latest develop branch version)
 	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop && go mod vendor
 
 test: ## Run tests
