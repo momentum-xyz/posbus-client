@@ -175,7 +175,7 @@ Example: publish a prerelease version on Github packages:
 
 ```
 npm version prerelease
-git push --tags
+git push --follow-tags
 ```
 
 Should work if your local git is setup to properly all sign commits and push tags by default.
