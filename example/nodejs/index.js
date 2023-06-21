@@ -19,15 +19,29 @@ async function main(userId, token) {
     console.log(`PosBus message [${userId}]:`, event.data);
   });
 
-  await client.load(wasmPBC);
+  const doConnect = async () => {
+    await client.loadAndStartMainLoop(
+      wasmPBC,
+      () => {
+        console.log("POSBUS exit. Reconnecting in a few moments...");
+        setTimeout(() => {
+          console.log("POSBUS reconnecting...");
+          doConnect();
+        }, 2000);
+      },
+      (err) => {
+        console.error("POSBUS error:", err);
+      }
+    );
+    console.log(`PosBus client loaded [${userId}]`, client);
+    // await client.connect(`https://dev.odyssey.ninja/posbus`, token, userId);
+    await client.connect(`http://localhost:4000/posbus`, token, userId);
 
-  console.log(`PosBus client loaded [${userId}]`, client);
-  await client.connect(`https://dev.odyssey.ninja/posbus`, token, userId);
-  // await client.connect(`http://localhost:4000/posbus`, token, userId);
-
-  await sleep(500);
-  console.log(`PosBus client teleport [${userId}]`);
-  await client.teleport("00000000-0000-8000-8000-000000000005");
+    await sleep(500);
+    console.log(`PosBus client teleport [${userId}]`);
+    await client.teleport("00000000-0000-8000-8000-000000000005");
+  };
+  await doConnect();
 
   await sleep(3000);
 

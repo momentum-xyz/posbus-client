@@ -23,14 +23,20 @@ export class PBClient {
     this.onMessageCallback = onMessage;
   }
 
-  async load(buffer?: ArrayBuffer) {
+  async loadAndStartMainLoop(
+    buffer?: ArrayBuffer,
+    onStop?: () => void,
+    onError?: (err: Error) => void
+  ) {
     const { go, instance } = await this.loadWasm(buffer);
     go.run(instance)
       .then(() => {
         console.info("go stopped");
+        onStop?.();
       })
       .catch((err) => {
         console.error("go run", err);
+        onError?.(err);
       });
     // need delay?
     if (typeof PBC === "undefined") {

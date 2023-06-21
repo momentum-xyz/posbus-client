@@ -69,7 +69,7 @@ async function main(userId: string, token: string) {
     // handle incoming messages
   });
 
-  await client.load(wasmPBC);
+  await client.loadAndStartMainLoop(wasmPBC);
 
   await client.connect(POSBUS_URL, token, userId);
 
