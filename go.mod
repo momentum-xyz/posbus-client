@@ -13,7 +13,7 @@ require (
 	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230619114426-cdd2462a35c8
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
-	github.com/testcontainers/testcontainers-go v0.20.1
+	github.com/testcontainers/testcontainers-go v0.21.0
 	go.uber.org/zap v1.24.0
 	nhooyr.io/websocket v1.8.7
 )
