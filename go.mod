@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.4
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/k-yomo/fixtory/v2 v2.0.0
-	github.com/momentum-xyz/ubercontroller v0.1.3-0.20230619114426-cdd2462a35c8
+	github.com/momentum-xyz/ubercontroller v0.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.21.0
