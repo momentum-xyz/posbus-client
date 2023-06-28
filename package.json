@@ -1,6 +1,6 @@
 {
   "name": "@momentum-xyz/posbus-client",
-  "version": "0.0.1-beta.7",
+  "version": "0.0.1-beta.8",
   "description": "Javascript client for Momentum websocket protocol",
   "type": "module",
   "main": "dist/index.mjs",
