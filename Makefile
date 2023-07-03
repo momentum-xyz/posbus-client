@@ -26,7 +26,7 @@ go_wasm_exec:
 	cp "$(shell go env GOROOT)/misc/wasm/wasm_exec.js" ./build/
 
 run_example: bin_build_js wasm go_wasm_exec  ## Run example server
-	cp example/* dist/
+	cp example/browser/* dist/
 	bin/build_js -s -p $(EXAMPLE_PORT)
 
 pbupdate:  ## Update the controller dependency (to latest develop branch version)
