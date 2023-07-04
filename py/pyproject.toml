@@ -32,7 +32,7 @@ source = "vcs"
 raw-options.root = "../"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "odyssey_posbus_client/_version.py"
+version-file = "_version.py"
 
 [tool.hatch.build.hooks.custom]
 dependencies = [
