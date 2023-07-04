@@ -1,11 +1,13 @@
 EXAMPLE_PORT:=0
-OUT_DIRS=build dist bin test-results
+OUT_DIRS=build dist bin test-results py/dist py/wheelhouse
 
 default: help
 
 all: js go_cli ## Build everything.
 
 js: build_ts ## Build the javascript client.
+
+py: build_py  ## Build the python client.
 
 build_ts: run_build_js
 	npm run build:types
@@ -28,6 +30,12 @@ go_wasm_exec:
 run_example: bin_build_js wasm go_wasm_exec  ## Run example server
 	cp example/browser/* dist/
 	bin/build_js -s -p $(EXAMPLE_PORT)
+
+build_py:
+	cd py && hatch build -t wheel
+
+python_wheels:
+	pipx run cibuildwheel --platform linux --archs x86_64 --output-dir build/wheelhouse py
 
 pbupdate:  ## Update the controller dependency (to latest develop branch version)
 	GOPROXY=direct go get -u github.com/momentum-xyz/ubercontroller/pkg/posbus@develop && go mod vendor

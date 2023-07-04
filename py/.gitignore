@@ -1,0 +1,5 @@
+*
+!.gitignore
+!*.md
+!*.toml
+!hatch_build.py
