@@ -41,7 +41,7 @@ class CustomBuildHook(BuildHookInterface):
             "github.com/momentum-xyz/ubercontroller/pkg/posbus",
             "github.com/momentum-xyz/ubercontroller/pkg/cmath"
             ], env=env)
-        build_data['infer_tag'] = True
+        build_data["infer_tag"] = True
         build_data["pure_python"] = False
         build_data["artifacts"] = ["odyssey_posbus_client/*"]
         build_data["only-include"] = ["odyssey_posbus_client"]

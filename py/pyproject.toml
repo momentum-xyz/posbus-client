@@ -14,7 +14,7 @@ authors = [
   { name = "Jor", email = "js@odyssey.org" },
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -23,16 +23,16 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/odyssey-python-client#readme"
-Issues = "https://github.com/unknown/odyssey-python-client/issues"
-Source = "https://github.com/unknown/odyssey-python-client"
+Documentation = "https://github.com/momentum-xyz/posbus-client/py#readme"
+Issues = "https://github.com/momentum-xyz/posbus-client/issues"
+Source = "https://github.com/momentum-xyz/posbus-client"
 
 [tool.hatch.version]
 source = "vcs"
 raw-options.root = "../"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "_version.py"
+version-file = "odyssey_posbus_client/_version.py"
 
 [tool.hatch.build.hooks.custom]
 dependencies = [
@@ -53,15 +53,7 @@ dependencies = [
 #exclude = [ ]
 
 [tool.hatch.build.targets.wheel]
-include = [
-  "*.py",
-  "*.so",
-  "*.dll",
-]
-exclude = [
-  "hatch_build.py",
-]
-
+skip-excluded-dirs = true
 
 [tool.cibuildwheel]
 build-frontend = "build"
