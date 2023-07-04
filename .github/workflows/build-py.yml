@@ -40,7 +40,7 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.13.1
       - name: Build wheels
-        run: python -m cibuildwheel --platform linux --archs x86_64 --output-dir build/wheelhouse
+        run: python -m cibuildwheel --platform linux --archs x86_64 --output-dir build/wheelhouse py
       - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce  # v3.1.2
         with:
           path: ./wheelhouse/*.whl
