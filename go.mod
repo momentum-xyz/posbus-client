@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/evanw/esbuild v0.18.11
+	github.com/go-python/gopy v0.4.7
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/websocket v1.5.0
 	github.com/gzuidhof/tygo v0.2.5
@@ -72,6 +73,8 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.16.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
+	github.com/gonuts/commander v0.1.0 // indirect
+	github.com/gonuts/flag v0.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
