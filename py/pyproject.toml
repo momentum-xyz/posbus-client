@@ -30,6 +30,7 @@ Source = "https://github.com/momentum-xyz/posbus-client"
 [tool.hatch.version]
 source = "vcs"
 raw-options.root = "../"
+tag-pattern = "^py@(?P<version>\\d+(?:\\.\\d+){0,2}[^\\+]*)"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "_version.py"
