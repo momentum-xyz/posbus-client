@@ -48,6 +48,7 @@ jobs:
           path: ./build/wheelhouse/*.whl
   pypi-publish:
     name: upload release to PyPI
+    needs: [build_wheels]
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags')
     runs-on: self-hosted
     environment:
