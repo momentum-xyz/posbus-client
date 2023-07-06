@@ -35,6 +35,11 @@ To build official wheel packages, [cibuildwheel](https://cibuildwheel.readthedoc
 `make python_wheels`
 
 
+## Release
+
+Releases are done automatically based on git tags. Create a git tag like `py@1.2.3` to trigger CI/CD workflow.
+
+
 ## Implementation
 
 This auto generates python bindings for the Go client code. By first generating a C library with cgo and then generating python bindings for that.
