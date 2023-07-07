@@ -61,8 +61,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags')
     runs-on: self-hosted
     environment:
-      name: testpypi
-      url: https://test.pypi.org/project/odyssey-posbus-client/
+      name: pypi
+      url: https://pypi.org/project/odyssey-posbus-client/
     permissions:
       id-token: write
     steps:
@@ -74,6 +74,4 @@ jobs:
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@f5622bde02b04381239da3573277701ceca8f6a0  # v1.8.7
-        with:
-          repository-url: https://test.pypi.org/legacy/
 
