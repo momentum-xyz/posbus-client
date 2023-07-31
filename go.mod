@@ -3,7 +3,7 @@ module github.com/momentum-xyz/posbus-client
 go 1.20
 
 require (
-	github.com/evanw/esbuild v0.18.16
+	github.com/evanw/esbuild v0.18.17
 	github.com/go-python/gopy v0.4.7
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/websocket v1.5.0
