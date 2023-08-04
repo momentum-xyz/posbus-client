@@ -34,8 +34,7 @@ jobs:
           echo "GOCACHE=/opt/go-cache/build" >> $GITHUB_ENV
       - uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
         with:
-          #go-version-file: "./go.mod"
-          go-version: '1.20.5'
+          go-version-file: "./go.mod"
           cache: false # no use on self-hosted runner
 
       - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1  # v4.7.0
