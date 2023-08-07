@@ -52,7 +52,7 @@
   "devDependencies": {
     "@tsconfig/node-lts-strictest-esm": "18.12.1",
     "@types/golang-wasm-exec": "1.15.0",
-    "eslint-config-prettier": "8.9.0",
+    "eslint-config-prettier": "9.0.0",
     "eslint-config-standard-with-typescript": "37.0.0",
     "prettier": "3.0.0",
     "typescript": "^5.1.6"
