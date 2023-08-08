@@ -100,3 +100,17 @@ func NewObjectTransform(
 		},
 	}
 }
+
+func NewLock(uuid []byte) posbus.LockObject {
+	id := umid.UMID(uuid)
+	return posbus.LockObject{
+		ID: id,
+	}
+}
+
+func NewUnlock(uuid []byte) posbus.UnlockObject {
+	id := umid.UMID(uuid)
+	return posbus.UnlockObject{
+		ID: id,
+	}
+}
