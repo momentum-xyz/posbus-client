@@ -7,7 +7,7 @@ require (
 	github.com/go-python/gopy v0.4.7
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/websocket v1.5.0
-	github.com/gzuidhof/tygo v0.2.5
+	github.com/gzuidhof/tygo v0.2.8
 	github.com/hashicorp/go-retryablehttp v0.7.4
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/k-yomo/fixtory/v2 v2.0.0
@@ -52,6 +52,7 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/ethereum/go-ethereum v1.12.0 // indirect
+	github.com/fatih/color v1.13.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/georgysavva/scany v1.2.1 // indirect
@@ -81,6 +82,7 @@ require (
 	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/hashicorp/go-hclog v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/holiman/uint256 v1.2.3 // indirect
